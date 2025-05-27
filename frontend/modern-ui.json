@@ -1,0 +1,20 @@
+{
+  "style": "default",
+  "path": "src/components/modern-ui",
+  "theme": "default",
+  "typescript": true,
+  "tailwind": true,
+  "framework": "next",
+  "components": [
+    {
+      "name": "avatar",
+      "version": "latest",
+      "installedAt": "2025-05-27T00:15:04.981Z"
+    }
+  ],
+  "aliases": {
+    "cn": "@/lib/utils",
+    "hook": "@/hooks"
+  },
+  "tailwindVersion": "v4"
+}
