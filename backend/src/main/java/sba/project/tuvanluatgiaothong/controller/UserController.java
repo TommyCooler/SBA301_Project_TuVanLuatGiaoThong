@@ -1,8 +1,10 @@
 package sba.project.tuvanluatgiaothong.controller;
 
 import java.util.List;
+import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -22,6 +24,12 @@ public class UserController {
     public String test() {
         return "User API is working!";
     }   
+
+    @GetMapping("/get-by-id")
+    public ResponseEntity<User> getUserById(UUID userId) {
+        User user = userService.getUserById(userId);
+        return ResponseEntity.ok(user);
+    }
 
     @GetMapping("/list-all")
     public List<User> getAllUsers() {

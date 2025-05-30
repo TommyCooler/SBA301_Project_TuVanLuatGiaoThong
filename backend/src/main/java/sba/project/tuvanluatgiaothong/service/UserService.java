@@ -22,6 +22,13 @@ public class UserService {
         this.passwordEncoder = passwordEncoder;
     }
 
+    public User getUserById(UUID userId) {
+        // Logic to retrieve a user by ID
+        // This would typically involve fetching the user from the database.
+        return userRepository.findById(userId)
+                .orElseThrow(() -> new IllegalArgumentException("User not found"));
+    }
+
     public List<User> getAllUsers() {
         // Logic to retrieve all users
         // This would typically involve fetching all user records from the database.
