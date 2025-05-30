@@ -2,6 +2,7 @@ package sba.project.tuvanluatgiaothong.pojo;
 
 import java.sql.Date;
 import java.sql.Timestamp;
+import java.util.UUID;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -23,8 +24,8 @@ import lombok.NoArgsConstructor;
 public class User {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    @Column(name = "id")
+    private UUID id = UUID.randomUUID();
 
     // @Column(name = "username", unique = true, length = 60)
     // private String username;

@@ -30,6 +30,8 @@ public class UserController {
 
     @PostMapping("/register")
     public User registerUser(String email, String password, String fullname) {
+        //Mẫu Test account
         return userService.registerUser("admin@gmail.com", "12345", "Admin User");
+        // return userService.registerUser(email, password, fullname);
     }
 }

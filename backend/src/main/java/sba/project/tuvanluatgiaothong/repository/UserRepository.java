@@ -1,12 +1,14 @@
 package sba.project.tuvanluatgiaothong.repository;
 
+import java.util.UUID;
+
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 import sba.project.tuvanluatgiaothong.pojo.User;
 
 @Repository
-public interface UserRepository extends JpaRepository<User, Long> {
+public interface UserRepository extends JpaRepository<User, UUID> {
     
     // Find user by username
     // User findByUsername(String username);
@@ -15,9 +17,9 @@ public interface UserRepository extends JpaRepository<User, Long> {
     User findByEmail(String email);
     
     // Check if a user exists by username
-    // boolean existsByUsername(String username);
+    // Boolean existsByUsername(String username);
     
     // Check if a user exists by email
-    boolean existsByEmail(String email);
+    Boolean existsByEmail(String email);
 
 }

@@ -1,6 +1,7 @@
 package sba.project.tuvanluatgiaothong.service;
 
 import java.util.List;
+import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -37,9 +38,13 @@ public class UserService {
 
         User newUser = new User();
         newUser.setEmail(email);
-        newUser.setPassword(passwordEncoder.encode(password));
+        // newUser.setPassword(passwordEncoder.encode(password));
+        newUser.setPassword(password);
         newUser.setFullname(fullname);
-        newUser.setRole(User.Role.ADMIN); // Default role
+        //Trường hợp muốn đặt role User
+        // newUser.setRole(User.Role.USER);
+        //Trường hợp muốn đặt role Admin
+        newUser.setRole(User.Role.ADMIN); 
         newUser.setEnable(true); // Default to enabled
         newUser.setCreatedAt(new java.sql.Timestamp(System.currentTimeMillis()));
 
@@ -53,7 +58,7 @@ public class UserService {
         return null;
     }
 
-    public User updateUserProfile(Long userId, String fullname, String avatarUrl) {
+    public User updateUserProfile(UUID userId, String fullname, String avatarUrl) {
         // Logic to update user profile information
         // This would typically involve fetching the user by ID,
         // updating the fields, and saving the changes to the database.
@@ -65,7 +70,7 @@ public class UserService {
         return userRepository.save(user);
     }
 
-    public User updateUserPassword(Long userId, String newPassword) {
+    public User updateUserPassword(UUID userId, String newPassword) {
         // Logic to update user password
         // This would typically involve fetching the user by ID,
         // hashing the new password, and saving the changes to the database.
@@ -76,7 +81,7 @@ public class UserService {
         return userRepository.save(user);
     }
 
-    public void deleteUser(Long userId) {
+    public void deleteUser(UUID userId) {
         // Logic to delete a user
         // This would typically involve checking if the user exists,
         // and then removing the user from the database.
