@@ -1,7 +1,9 @@
 package sba.project.tuvanluatgiaothong.service;
 
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import sba.project.tuvanluatgiaothong.pojo.User;
@@ -10,10 +12,20 @@ import sba.project.tuvanluatgiaothong.repository.UserRepository;
 @Service
 public class UserService {
 
-    @Autowired
-    private UserRepository userRepository;
+    private final UserRepository userRepository;
+    private final PasswordEncoder passwordEncoder;
 
-    private BCryptPasswordEncoder passwordEncoder;
+    @Autowired
+    public UserService(UserRepository userRepository, PasswordEncoder passwordEncoder) {
+        this.userRepository = userRepository;
+        this.passwordEncoder = passwordEncoder;
+    }
+
+    public List<User> getAllUsers() {
+        // Logic to retrieve all users
+        // This would typically involve fetching all user records from the database.
+        return userRepository.findAll();
+    }
     
     public User registerUser(String email, String password, String fullname) {
         // Logic to register a new user
@@ -27,8 +39,9 @@ public class UserService {
         newUser.setEmail(email);
         newUser.setPassword(passwordEncoder.encode(password));
         newUser.setFullname(fullname);
-        newUser.setRole(User.Role.USER); // Default role
+        newUser.setRole(User.Role.ADMIN); // Default role
         newUser.setEnable(true); // Default to enabled
+        newUser.setCreatedAt(new java.sql.Timestamp(System.currentTimeMillis()));
 
         return userRepository.save(newUser);
     }
@@ -48,6 +61,18 @@ public class UserService {
                 .orElseThrow(() -> new IllegalArgumentException("User not found"));
         user.setFullname(fullname);
         user.setAvatarUrl(avatarUrl);
+        user.setUpdatedAt(new java.sql.Timestamp(System.currentTimeMillis()));
+        return userRepository.save(user);
+    }
+
+    public User updateUserPassword(Long userId, String newPassword) {
+        // Logic to update user password
+        // This would typically involve fetching the user by ID,
+        // hashing the new password, and saving the changes to the database.
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new IllegalArgumentException("User not found"));
+        user.setPassword(passwordEncoder.encode(newPassword));
+        user.setUpdatedAt(new java.sql.Timestamp(System.currentTimeMillis()));
         return userRepository.save(user);
     }
 
