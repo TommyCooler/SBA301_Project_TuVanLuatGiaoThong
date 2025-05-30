@@ -1,9 +1,9 @@
 package sba.project.tuvanluatgiaothong.config;
 
+import org.springframework.beans.factory.annotation.Configurable;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.annotation.Configuration;
 
-@Configuration
+@Configurable
 public class GeminiConfig {
     
     @Value("${gemini.api.key}")
