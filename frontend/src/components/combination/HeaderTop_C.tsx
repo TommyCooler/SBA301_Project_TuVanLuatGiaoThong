@@ -6,6 +6,8 @@ import Constant from "@/configs/Constant";
 import { User } from "@/models/User";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/modern-ui/avatar";
 import { useState, useRef, useEffect } from "react";
+import GavelIcon from '@mui/icons-material/Gavel';
+import PeopleIcon from '@mui/icons-material/People';
 
 type HeaderTop_CProps = {
     logedUser?: User;
@@ -95,6 +97,22 @@ export default function HeaderTop_C({ logedUser } : HeaderTop_CProps) {
                                             <FiLogOut className="h-5 w-5" />
                                             <span>Đăng xuất</span>
                                         </button>
+                                        {/* Dành cho Admin */}
+                                        <a 
+                                            href="/admin/law-management" 
+                                            className="flex items-center space-x-2 px-4 py-2 text-gray-700 hover:bg-gray-50 transition-colors duration-200"
+                                        >
+                                            <GavelIcon />
+                                            <span>Luật Hiện Hành</span>
+                                        </a>
+                                        <hr className="my-1 border-t border-gray-100" />
+                                        <a 
+                                            href="/admin/user-management" 
+                                            className="flex items-center space-x-2 px-4 py-2 text-gray-700 hover:bg-gray-50 transition-colors duration-200"
+                                        >
+                                            <PeopleIcon />
+                                            <span>Quản lý người dùng</span>
+                                        </a>
                                     </div>
                                 )}
                             </div>
