@@ -5,11 +5,10 @@ import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
+import sba.project.tuvanluatgiaothong.dto.request.LoginRequest;
+import sba.project.tuvanluatgiaothong.dto.response.LoginResponse;
 import sba.project.tuvanluatgiaothong.pojo.User;
 import sba.project.tuvanluatgiaothong.service.UserService;
 
@@ -31,6 +30,10 @@ public class UserController {
         return ResponseEntity.ok(user);
     }
 
+    @PostMapping("/login")
+    public LoginResponse loginUser(@RequestBody LoginRequest loginRequest) {
+        return userService.loginUser(loginRequest) ;
+    }
     @GetMapping("/list-all")
     public List<User> getAllUsers() {
         return userService.getAllUsers();

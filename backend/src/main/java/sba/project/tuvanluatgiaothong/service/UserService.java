@@ -7,6 +7,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import sba.project.tuvanluatgiaothong.dto.request.LoginRequest;
+import sba.project.tuvanluatgiaothong.dto.response.LoginResponse;
 import sba.project.tuvanluatgiaothong.pojo.User;
 import sba.project.tuvanluatgiaothong.repository.UserRepository;
 
@@ -58,11 +60,19 @@ public class UserService {
         return userRepository.save(newUser);
     }
 
-    public User loginUser(String email, String password) {
+    public LoginResponse loginUser(LoginRequest loginRequest) {
         // Logic to authenticate a user
         // This would typically involve checking the email and password against stored values,
         // and returning a user object or an authentication token if successful.
-        return null;
+        User user = userRepository.findByEmail(loginRequest.getEmail());
+        System.out.println( user.getEmail());
+        if(user == null) {
+            throw new IllegalArgumentException("Email not found");
+        }
+        if(!loginRequest.getPassword().equals(user.getPassword())) {
+            throw new IllegalArgumentException("Invalid password");
+        }
+        return new LoginResponse(user.getEmail(), user.getPassword());// Assuming User has a build method to return a User object
     }
 
     public User updateUserProfile(UUID userId, String fullname, String avatarUrl) {
