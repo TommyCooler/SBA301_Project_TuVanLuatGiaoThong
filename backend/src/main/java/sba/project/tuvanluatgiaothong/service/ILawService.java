@@ -1,15 +1,17 @@
 package sba.project.tuvanluatgiaothong.service;
 
+import java.util.List;
 import java.util.UUID;
 
+import sba.project.tuvanluatgiaothong.dto.LawRequestDto;
+import sba.project.tuvanluatgiaothong.dto.LawResponseDto;
 import sba.project.tuvanluatgiaothong.pojo.Law;
 
 public interface ILawService {
 
-    void save(Law law);
-    void update(Law law);
-    boolean delete(UUID id);
-    Law getall();
-    Law getById(UUID id);
-    
+    LawResponseDto createLaw(LawRequestDto lawRequestDto);
+    LawResponseDto getLawById(UUID id);
+    List<LawResponseDto> getAllLaw();
+    LawResponseDto update(UUID id, LawRequestDto lawRequestDto);
+    void delete(UUID id);
 }
