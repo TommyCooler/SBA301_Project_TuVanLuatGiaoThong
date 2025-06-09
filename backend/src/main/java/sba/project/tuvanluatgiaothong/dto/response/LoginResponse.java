@@ -1,22 +1,24 @@
 package sba.project.tuvanluatgiaothong.dto.response;
 
+import sba.project.tuvanluatgiaothong.pojo.User;
+
 public class LoginResponse {
     private String email;
-    private String role;
+    private User.Role role;
 
     public LoginResponse() {
     }
 
-    public LoginResponse(String email, String role) {
+    public LoginResponse(String email, User.Role role) {
         this.email = email;
         this.role = role;
     }
 
-    public String getRole() {
+    public User.Role getRole() {
         return role;
     }
 
-    public void setRole(String role) {
+    public void setRole(User.Role role) {
         this.role = role;
     }
 

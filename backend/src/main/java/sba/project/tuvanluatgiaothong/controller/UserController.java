@@ -30,10 +30,7 @@ public class UserController {
         return ResponseEntity.ok(user);
     }
 
-    @PostMapping("/login")
-    public LoginResponse loginUser(@RequestBody LoginRequest loginRequest) {
-        return userService.loginUser(loginRequest) ;
-    }
+
     @GetMapping("/list-all")
     public List<User> getAllUsers() {
         return userService.getAllUsers();
