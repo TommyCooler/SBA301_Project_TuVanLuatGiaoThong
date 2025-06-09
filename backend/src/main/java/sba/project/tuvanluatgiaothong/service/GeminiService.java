@@ -6,8 +6,6 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
-import com.google.genai.Client;
-import com.google.genai.types.GenerateContentResponse;
 
 import java.util.List;
 import java.util.Map;
@@ -15,7 +13,7 @@ import java.util.Map;
 import sba.project.tuvanluatgiaothong.config.GeminiConfig;
 
 @Service
-public class GeminiService {
+public class GeminiService implements IGeminiService {
     
     private final GeminiConfig config;
     private final RestTemplate restTemplate;
@@ -25,6 +23,7 @@ public class GeminiService {
         this.restTemplate = new RestTemplate();
     }
 
+    @Override
     public String generateContent(String prompt) {
         String endpoint = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=" + config.getApiKey();
 
@@ -38,18 +37,6 @@ public class GeminiService {
         HttpEntity<Map<String, Object>> request = new HttpEntity<>(body, headers);
 
         ResponseEntity<String> response = restTemplate.postForEntity(endpoint, request, String.class);
-
-
-        Client client = new Client();
-
-        GenerateContentResponse response1 =
-            client.models.generateContent(
-                "gemini-2.0-flash",
-                "Explain how AI works in a few words",
-                null);
-
-        System.out.println("Client response: " + response1.text());
-        client.close();
 
         return response.getBody();
 
