@@ -38,78 +38,36 @@ public class LawService implements ILawService {
     @Override
     public LawResponseDto createLaw(LawRequestDto lawRequestDto) {
         // TODO Auto-generated method stub
-
-        LawType lawType = lawTypeRepository.findById(lawRequestDto.getLawTypeId())
-            .orElseThrow(() -> new IllegalArgumentException("LawType not found with id: " + lawRequestDto.getLawTypeId()));
-        Law law = Law.builder()
-        .title(lawRequestDto.getTittle())
-        .lawType(lawType)
-        .issueDate(lawRequestDto.getIssueDate())
-        .effectiveDate(lawRequestDto.getEffectiveDate())
-        .sourceUrl(lawRequestDto.getSourceUrl())
-        .filePath(lawRequestDto.getFilePath())
-        .isDeleted(lawRequestDto.isDeleted())
-        .build();
-
+        Law law = convertLawRequestDtoToLaw(lawRequestDto);
+        // Set the ID to a new UUID if it's not provided
+        if (law.getId() == null) {
+            law.setId(UUID.randomUUID());
+        }
         lawRepository.save(law);
-
-        LawTypeResponseDTO lawTypeResponse = new LawTypeResponseDTO();
-        lawTypeResponse.setId(lawType.getId());
-        lawTypeResponse.setName(lawType.getName());
-        lawTypeResponse.setDeleted(false); // Assuming you want to set deleted as false for the response
-        lawTypeResponse.setCreatedDate(lawType.getCreatedDate());
-        lawTypeResponse.setUpdatedDate(lawType.getUpdatedDate());
-
-        LawResponseDto lawResponseDto = new LawResponseDto(); 
-        lawResponseDto.setId(law.getId());
-        lawResponseDto.setTittle(law.getTitle());
-        lawResponseDto.setIssueDate(law.getIssueDate());
-        lawResponseDto.setEffectiveDate(law.getEffectiveDate());
-        lawResponseDto.setSourceUrl(law.getSourceUrl());
-        lawResponseDto.setFilePath(law.getFilePath());
-        lawResponseDto.setDeleted(law.isDeleted());
-        lawResponseDto.setCreatedDate(law.getCreatedDate());
-        lawResponseDto.setUpdatedDate(law.getUpdatedDate());
-        lawResponseDto.setLawType(lawTypeResponse);
-        return lawResponseDto;
+        return convertToLawResponseDto(law);
         // throw new UnsupportedOperationException("Unimplemented method 'create'");
     }
 
     @Override
     public LawResponseDto update(UUID id, LawRequestDto lawRequestDto) {
-       LawType lawType = lawTypeRepository.findById(lawRequestDto.getLawTypeId())
+       Law law = lawRepository.findById(id)
+            .orElseThrow(() -> new IllegalArgumentException("Law not found with id: " + id));
+        LawType lawType = lawTypeRepository.findById(lawRequestDto.getLawTypeId())
             .orElseThrow(() -> new IllegalArgumentException("LawType not found with id: " + lawRequestDto.getLawTypeId()));
-        Law law = Law.builder()
-        .title(lawRequestDto.getTittle())
-        .lawType(lawType)
-        .issueDate(lawRequestDto.getIssueDate())
-        .effectiveDate(lawRequestDto.getEffectiveDate())
-        .sourceUrl(lawRequestDto.getSourceUrl())
-        .filePath(lawRequestDto.getFilePath())
-        .isDeleted(lawRequestDto.isDeleted())
-        .build();
+
+        law.setTitle(lawRequestDto.getTittle());
+        law.setLawType(lawType);
+        law.setIssueDate(lawRequestDto.getIssueDate());
+        law.setReferenceNumber(lawRequestDto.getReferenceNumber());
+        law.setDateline(lawRequestDto.getDateline());
+        law.setEffectiveDate(lawRequestDto.getEffectiveDate());
+        law.setSourceUrl(lawRequestDto.getSourceUrl());
+        law.setFilePath(lawRequestDto.getFilePath());
+        law.setDeleted(lawRequestDto.isDeleted());
 
         lawRepository.save(law);
 
-        LawTypeResponseDTO lawTypeResponse = new LawTypeResponseDTO();
-        lawTypeResponse.setId(lawType.getId());
-        lawTypeResponse.setName(lawType.getName());
-        lawTypeResponse.setDeleted(false); // Assuming you want to set deleted as false for the response
-        lawTypeResponse.setCreatedDate(lawType.getCreatedDate());
-        lawTypeResponse.setUpdatedDate(lawType.getUpdatedDate());
-
-        LawResponseDto lawResponseDto = new LawResponseDto(); 
-        lawResponseDto.setId(law.getId());
-        lawResponseDto.setTittle(law.getTitle());
-        lawResponseDto.setIssueDate(law.getIssueDate());
-        lawResponseDto.setEffectiveDate(law.getEffectiveDate());
-        lawResponseDto.setSourceUrl(law.getSourceUrl());
-        lawResponseDto.setFilePath(law.getFilePath());
-        lawResponseDto.setDeleted(law.isDeleted());
-        lawResponseDto.setCreatedDate(law.getCreatedDate());
-        lawResponseDto.setUpdatedDate(law.getUpdatedDate());
-        lawResponseDto.setLawType(lawTypeResponse);
-        return lawResponseDto;
+        return convertToLawResponseDto(law);
     }
 
     @Override
@@ -117,8 +75,41 @@ public class LawService implements ILawService {
         // TODO Auto-generated method stub
         Law law = lawRepository.findById(id)
             .orElseThrow(() -> new IllegalArgumentException("Law not found with id: " + id));
-        LawType lawType = law.getLawType();
+       
+        return convertToLawResponseDto(law);
+        // throw new UnsupportedOperationException("Unimplemented method 'read'");
+    }
 
+    @Override
+    public List<LawResponseDto> getAllLaw() {
+        // TODO Auto-generated method stub
+        List<Law> laws = lawRepository.findAll();
+        List<LawResponseDto> lawResponseDtos = laws.stream().map(law -> {
+            return convertToLawResponseDto(law);
+        }).toList();
+        return lawResponseDtos;
+    }
+
+
+    private Law convertLawRequestDtoToLaw(LawRequestDto lawRequestDto) {
+        LawType lawType = lawTypeRepository.findById(lawRequestDto.getLawTypeId())
+            .orElseThrow(() -> new IllegalArgumentException("LawType not found with id: " + lawRequestDto.getLawTypeId()));
+        
+        return Law.builder()
+            .title(lawRequestDto.getTittle())
+            .lawType(lawType)
+            .issueDate(lawRequestDto.getIssueDate())
+                .referenceNumber(lawRequestDto.getReferenceNumber())
+            .dateline(lawRequestDto.getDateline())
+            .effectiveDate(lawRequestDto.getEffectiveDate())
+            .sourceUrl(lawRequestDto.getSourceUrl())
+            .filePath(lawRequestDto.getFilePath())
+            .isDeleted(lawRequestDto.isDeleted())
+            .build();
+    }
+   
+    private LawResponseDto convertToLawResponseDto(Law law) {
+        LawType lawType = law.getLawType();
         LawTypeResponseDTO lawTypeResponse = new LawTypeResponseDTO();
         lawTypeResponse.setId(lawType.getId());
         lawTypeResponse.setName(lawType.getName());
@@ -130,38 +121,19 @@ public class LawService implements ILawService {
         lawResponseDto.setId(law.getId());
         lawResponseDto.setTittle(law.getTitle());
         lawResponseDto.setIssueDate(law.getIssueDate());
+        lawResponseDto.setReferenceNumber(law.getReferenceNumber());
+        lawResponseDto.setDateline(law.getDateline());
         lawResponseDto.setEffectiveDate(law.getEffectiveDate());
         lawResponseDto.setSourceUrl(law.getSourceUrl());
         lawResponseDto.setFilePath(law.getFilePath());
         lawResponseDto.setDeleted(law.isDeleted());
-        lawResponseDto.setLawType(lawTypeResponse);
         lawResponseDto.setCreatedDate(law.getCreatedDate());
         lawResponseDto.setUpdatedDate(law.getUpdatedDate());
+        lawResponseDto.setLawType(lawTypeResponse);
+
+        System.out.println("LawResponseDto createdDate set: " + law.getCreatedDate());
         return lawResponseDto;
-        // throw new UnsupportedOperationException("Unimplemented method 'read'");
     }
-
-    @Override
-    public List<LawResponseDto> getAllLaw() {
-        // TODO Auto-generated method stub
-        List<Law> laws = lawRepository.findAll();
-        List<LawResponseDto> lawResponseDtos = laws.stream().map(law -> {
-            LawResponseDto lawResponseDto = new LawResponseDto();
-            lawResponseDto.setId(law.getId());
-            lawResponseDto.setTittle(law.getTitle());
-            lawResponseDto.setIssueDate(law.getIssueDate());
-            lawResponseDto.setEffectiveDate(law.getEffectiveDate());
-            lawResponseDto.setSourceUrl(law.getSourceUrl());
-            lawResponseDto.setFilePath(law.getFilePath());
-            lawResponseDto.setDeleted(law.isDeleted());
-            lawResponseDto.setCreatedDate(law.getCreatedDate());
-            lawResponseDto.setUpdatedDate(law.getUpdatedDate());
-            return lawResponseDto;
-        }).toList();
-        throw new UnsupportedOperationException("Unimplemented method 'readAll'");
-    }
-
-   
     
 
    

@@ -6,13 +6,7 @@ import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.UUID;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
-import jakarta.persistence.PrePersist;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -28,7 +22,13 @@ public class Law {
     
     @Id
     @Column(name = "id", nullable = false, unique = true)
-    private UUID id;
+    private UUID id = UUID.randomUUID();
+
+    @Column(name = "reference_number", length = 255)
+    private String referenceNumber;
+
+    @Column(name = "dateline", length = 255)
+    private String dateline;
 
     @Column(name = "title")
     private String title;
@@ -37,10 +37,10 @@ public class Law {
     private String content;
 
     @Column(name = "issue_date")
-    private Timestamp issue_date;
+    private Timestamp issueDate;
 
     @Column(name = "effective_date")
-    private Timestamp effective_date;
+    private Timestamp effectiveDate;
     
     @Column(name = "source_url", columnDefinition = "TEXT")
     private String sourceUrl;
@@ -55,17 +55,23 @@ public class Law {
     @JoinColumn(name = "lawType")
     private LawType lawType;
 
-    @Column(name = "createDate")
+    @Column(name = "create_date")
     private Timestamp createdDate;
 
-    @Column(name = "updateDate")
+    @Column(name = "update_date")
     private Timestamp updatedDate;
 
     @PrePersist
-public void prePersist() {
+    public void prePersist() {
     var zoneId = ZoneId.of("Asia/Ho_Chi_Minh");
     Instant now = ZonedDateTime.now(zoneId).toInstant();
     this.createdDate = Timestamp.from(now);
-    this.updatedDate = Timestamp.from(now);
 }
+
+    @PreUpdate
+    public void preUpdate() {
+        var zoneId = ZoneId.of("Asia/Ho_Chi_Minh");
+        Instant now = ZonedDateTime.now(zoneId).toInstant();
+        this.updatedDate = Timestamp.from(now);
+    }
 }

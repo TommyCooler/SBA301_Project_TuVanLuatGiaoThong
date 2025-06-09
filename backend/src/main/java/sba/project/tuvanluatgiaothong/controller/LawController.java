@@ -3,6 +3,9 @@ package sba.project.tuvanluatgiaothong.controller;
 import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.HttpStatusCode;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -29,64 +32,70 @@ public class LawController {
     }
 
     @PostMapping("/create")
-    public ApiResponse<?> createLaw(@RequestBody LawRequestDto lawRequestDto) {
+    public ResponseEntity<ApiResponse<?>> createLaw(@RequestBody LawRequestDto lawRequestDto) {
         // Logic to create a law
-        return ApiResponse.builder()
-                .status("success")
-                .message("Law created successfully")
-                .dataResponse(iUsecase.createLaw(lawRequestDto))
-                .build();
+        return new ResponseEntity<>(
+                ApiResponse.builder()
+                        .status("success")
+                        .message("Law created successfully")
+                        .dataResponse(iUsecase.createLaw(lawRequestDto))
+                        .build(),
+                HttpStatus.OK
+        );
         
     }
     
     @PutMapping("/update/{id}")
-    public ApiResponse<?> updateLaw(@PathVariable UUID id,@RequestBody LawRequestDto lawRequestDto) {
+    public ResponseEntity<ApiResponse<?>> updateLaw(@PathVariable UUID id,@RequestBody LawRequestDto lawRequestDto) {
         // Logic to update a law
-        return ApiResponse.builder()
-                .status("success")
-                .message("Law updated successfully")
-                .dataResponse(iUsecase.update(id, lawRequestDto))
-                .build();
+        return new ResponseEntity<>(
+                ApiResponse.builder()
+                        .status("success")
+                        .message("Law updated successfully")
+                        .dataResponse(iUsecase.update(id, lawRequestDto))
+                        .build(),
+                HttpStatus.OK
+        );
     }
 
     @GetMapping("/get/{id}")
-    public ApiResponse<?> getLawById(@PathVariable UUID id) {
+    public ResponseEntity<ApiResponse<?>> getLawById(@PathVariable UUID id) {
         // Logic to get a law by ID
-        return ApiResponse.builder()
-                .status("success")
-                .message("Law retrieved successfully")
-                .dataResponse(iUsecase.getLawById(id))
-                .build();
+        return new ResponseEntity<>(
+                ApiResponse.builder()
+                        .status("success")
+                        .message("Law retrieved successfully")
+                        .dataResponse(iUsecase.getLawById(id))
+                        .build(),
+                HttpStatus.OK
+        );
     }
 
     @GetMapping("/getAll")
-    public ApiResponse<?> getAllLaw() {
+    public ResponseEntity<ApiResponse<?>> getAllLaw() {
         // Logic to get all laws
-        return ApiResponse.builder()
-                .status("success")
-                .message("All laws retrieved successfully")
-                .dataResponse(iUsecase.getAllLaw())
-                .build();
+        return new ResponseEntity<>(
+                ApiResponse.builder()
+                        .status("success")
+                        .message("All laws retrieved successfully")
+                        .dataResponse(iUsecase.getAllLaw())
+                        .build(),
+                HttpStatus.OK
+        );
     }
 
-    @PostMapping("/delete/{id}")
-    public ApiResponse<?> deleteLaw(@PathVariable UUID id) {
+    @PutMapping("/delete/{id}")
+    public ResponseEntity<ApiResponse<?>> deleteLaw(@PathVariable UUID id) {
         // Logic to delete a law
         iUsecase.delete(id);
-        return ApiResponse.builder()
-                .status("success")
-                .message("Law deleted successfully")
-                .build();
+        return new ResponseEntity<>(
+                ApiResponse.builder()
+                        .status("success")
+                        .message("Law deleted successfully")
+                        .build(),
+                HttpStatus.OK
+        );
     }
 
-    @DeleteMapping("/delete/{id}")
-    public ApiResponse<?> deleteLawById(@PathVariable UUID id) {
-        // Logic to delete a law by ID
-        iUsecase.delete(id);
-        return ApiResponse.builder()
-                .status("success")
-                .message("Law deleted successfully")
-                .build();
-    }
 
 }
