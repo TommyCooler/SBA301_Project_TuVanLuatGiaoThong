@@ -11,7 +11,7 @@ import sba.project.tuvanluatgiaothong.pojo.User;
 import sba.project.tuvanluatgiaothong.repository.UserRepository;
 
 @Service
-public class UserService {
+public class UserService implements IUserService{
 
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
@@ -59,6 +59,11 @@ public class UserService {
         return userRepository.save(user);
     }
 
+    @Override
+    public User updateUserPassword(UUID userId, String oldPassword, String newPassword) {
+        return null;
+    }
+
     public User updateUserPassword(UUID userId, String newPassword) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new IllegalArgumentException("User not found"));
@@ -69,5 +74,13 @@ public class UserService {
 
     public void deleteUser(UUID userId) {
         userRepository.findById(userId).ifPresent(userRepository::delete);
+    }
+
+    public User updateUserIsEnable(UUID userId, Boolean isEnable) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new IllegalArgumentException("User not found"));
+        user.setEnable(isEnable);
+        user.setUpdatedAt(new java.sql.Timestamp(System.currentTimeMillis()));
+        return userRepository.save(user);
     }
 }
