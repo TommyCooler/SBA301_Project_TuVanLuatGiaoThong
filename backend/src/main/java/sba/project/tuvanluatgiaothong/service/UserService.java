@@ -37,28 +37,7 @@ public class UserService {
         return userRepository.findAll();
     }
     
-    public User registerUser(String email, String password, String fullname) {
-        // Logic to register a new user
-        // This would typically involve checking if the email is already registered,
-        // hashing the password, and saving the user details to the database.
-        if (userRepository.existsByEmail(email)) {
-            throw new IllegalArgumentException("Email is already registered");
-        }
 
-        User newUser = new User();
-        newUser.setEmail(email);
-        // newUser.setPassword(passwordEncoder.encode(password));
-        newUser.setPassword(password);
-        newUser.setFullname(fullname);
-        //Trường hợp muốn đặt role User
-        // newUser.setRole(User.Role.USER);
-        //Trường hợp muốn đặt role Admin
-        newUser.setRole(User.Role.ADMIN); 
-        newUser.setEnable(true); // Default to enabled
-        newUser.setCreatedAt(new java.sql.Timestamp(System.currentTimeMillis()));
-
-        return userRepository.save(newUser);
-    }
 
 
 
