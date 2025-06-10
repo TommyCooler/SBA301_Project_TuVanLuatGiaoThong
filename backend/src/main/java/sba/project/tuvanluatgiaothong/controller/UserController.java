@@ -5,11 +5,10 @@ import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
+import sba.project.tuvanluatgiaothong.dto.request.LoginUserRequest;
+import sba.project.tuvanluatgiaothong.dto.request.RegisterUserRequest;
 import sba.project.tuvanluatgiaothong.pojo.User;
 import sba.project.tuvanluatgiaothong.service.UserService;
 
@@ -19,11 +18,6 @@ public class UserController {
 
     @Autowired
     private UserService userService;
-
-    @GetMapping("/test")
-    public String test() {
-        return "User API is working!";
-    }   
 
     @GetMapping("/get-by-id")
     public ResponseEntity<User> getUserById(UUID userId) {
@@ -37,7 +31,19 @@ public class UserController {
     }
 
     @PostMapping("/register")
-    public User registerUser(String email, String password, String fullName) {
-         return userService.registerUser(email, password, fullName);
+    public ResponseEntity<User> registerUser(@RequestBody RegisterUserRequest request) {
+        User user = userService.registerUser(request.getEmail(), request.getPassword(), request.getFullName());
+        return ResponseEntity.ok(user);
+    }
+
+    @PostMapping("/login")
+    public ResponseEntity<User> loginUser(@RequestBody LoginUserRequest request) {
+        User user = userService.loginUser(request.getEmail(), request.getPassword());
+        return ResponseEntity.ok(user);
+    }
+
+    @PostMapping("/is-enable")
+    public User updateUserIsEnable(UUID userId, Boolean isEnable) {
+        return userService.updateUserIsEnable(userId, isEnable);
     }
 }
