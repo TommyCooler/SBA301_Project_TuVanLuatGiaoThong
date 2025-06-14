@@ -1,5 +1,6 @@
 package sba.project.tuvanluatgiaothong.dto.response;
 
+import sba.project.tuvanluatgiaothong.enums.UserRole;
 import sba.project.tuvanluatgiaothong.pojo.User;
 
 import java.sql.Timestamp;
@@ -8,11 +9,11 @@ public class RegisterResponse {
     private String fullName;
     private String email;
     private String password;
-    private User.Role role;
+    private UserRole role;
     private Timestamp createdAt;
     private boolean isEnable;
 
-    public RegisterResponse(String fullName, String email, String password, User.Role role, Timestamp createdAt, boolean isEnable) {
+    public RegisterResponse(String fullName, String email, String password, UserRole role, Timestamp createdAt, boolean isEnable) {
         this.fullName = fullName;
         this.email = email;
         this.password = password;
@@ -48,11 +49,11 @@ public class RegisterResponse {
         this.password = password;
     }
 
-    public User.Role getRole() {
+    public UserRole getRole() {
         return role;
     }
 
-    public void setRole(User.Role role) {
+    public void setRole(UserRole role) {
         this.role = role;
     }
 

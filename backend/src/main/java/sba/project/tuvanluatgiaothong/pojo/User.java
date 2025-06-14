@@ -13,6 +13,7 @@ import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import sba.project.tuvanluatgiaothong.enums.UserRole;
 
 @Entity
 @Table(name = "users")
@@ -25,17 +26,14 @@ public class User {
     @Column(name = "id")
     private UUID id = UUID.randomUUID();
 
-    // @Column(name = "username", unique = true, length = 60)
-    // private String username;
-
     @Column(name = "email", nullable = false, unique = true, length = 320)
     private String email;
 
     @Column(name = "password", nullable = false, length = 255)
     private String password;
 
-    @Column(name = "fullname", nullable = false, length = 100)
-    private String fullname;
+    @Column(name = "fullName", nullable = false, length = 100)
+    private String fullName;
 
     @Column(name = "avatar_url", length = 1024)
     private String avatarUrl;
@@ -46,12 +44,9 @@ public class User {
     @Column(name = "is_enable", nullable = false)
     private boolean isEnable;
 
-    public enum Role {
-        USER, ADMIN
-    }
     @Column(name = "role", nullable = false)
     @Enumerated(EnumType.STRING)
-    private Role role;
+    private UserRole role;
 
     @Column(name = "created_at", nullable = false)
     private Timestamp createdAt;

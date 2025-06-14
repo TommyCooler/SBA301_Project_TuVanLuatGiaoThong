@@ -5,10 +5,11 @@ import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
-import sba.project.tuvanluatgiaothong.dto.request.LoginRequest;
-import sba.project.tuvanluatgiaothong.dto.response.LoginResponse;
 import sba.project.tuvanluatgiaothong.pojo.User;
 import sba.project.tuvanluatgiaothong.service.UserService;
 
@@ -30,11 +31,13 @@ public class UserController {
         return ResponseEntity.ok(user);
     }
 
-
     @GetMapping("/list-all")
     public List<User> getAllUsers() {
         return userService.getAllUsers();
     }
 
-
+    @PostMapping("/is-enable")
+    public User updateUserIsEnable(UUID userId, Boolean isEnable) {
+        return userService.updateUserIsEnable(userId, isEnable);
+    }
 }

@@ -1,5 +1,6 @@
 package sba.project.tuvanluatgiaothong.controller;
 
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -18,13 +19,13 @@ public class AuthController {
     private AuthService authService;
 
     @PostMapping("/login")
-    public ApiResponse<LoginResponse> loginUser(@RequestBody LoginRequest loginRequest) {
+    public ApiResponse<LoginResponse> loginUser(@Valid @RequestBody LoginRequest loginRequest) {
         LoginResponse result =  authService.loginUser(loginRequest) ;
         return new ApiResponse<>("Success", "Login successfully", result);
     }
 
     @PostMapping("/register")
-    public ApiResponse<RegisterResponse> registerUser(@RequestBody RegisterRequest registerRequest) {
+    public ApiResponse<RegisterResponse> registerUser(@Valid @RequestBody RegisterRequest registerRequest) {
         RegisterResponse result = authService.registerUser(registerRequest);
         return new ApiResponse<>("Success", "Registration successful", result);
     }
