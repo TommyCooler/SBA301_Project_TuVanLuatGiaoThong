@@ -5,10 +5,12 @@ import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
-import sba.project.tuvanluatgiaothong.dto.request.LoginUserRequest;
-import sba.project.tuvanluatgiaothong.dto.request.RegisterUserRequest;
 import sba.project.tuvanluatgiaothong.pojo.User;
 import sba.project.tuvanluatgiaothong.service.UserService;
 
@@ -19,27 +21,22 @@ public class UserController {
     @Autowired
     private UserService userService;
 
+    @GetMapping("/test")
+    public String test() {
+        return "User API is working!";
+    }   
+
     @GetMapping("/get-by-id")
     public ResponseEntity<User> getUserById(UUID userId) {
         User user = userService.getUserById(userId);
         return ResponseEntity.ok(user);
     }
 
+
     @GetMapping("/list-all")
+    @PreAuthorize("hasAuthority('SCOPE_ADMIN')")
     public List<User> getAllUsers() {
         return userService.getAllUsers();
-    }
-
-    @PostMapping("/register")
-    public ResponseEntity<User> registerUser(@RequestBody RegisterUserRequest request) {
-        User user = userService.registerUser(request.getEmail(), request.getPassword(), request.getFullName());
-        return ResponseEntity.ok(user);
-    }
-
-    @PostMapping("/login")
-    public ResponseEntity<User> loginUser(@RequestBody LoginUserRequest request) {
-        User user = userService.loginUser(request.getEmail(), request.getPassword());
-        return ResponseEntity.ok(user);
     }
 
     @PostMapping("/is-enable")
