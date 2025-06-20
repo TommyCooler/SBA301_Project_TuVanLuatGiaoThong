@@ -6,13 +6,23 @@ import sba.project.tuvanluatgiaothong.pojo.User;
 public class LoginResponse {
     private String email;
     private UserRole role;
+    private String token;
 
     public LoginResponse() {
     }
 
-    public LoginResponse(String email, UserRole role) {
+    public LoginResponse(String email, UserRole role, String token) {
         this.email = email;
         this.role = role;
+        this.token = token;
+    }
+
+    public String getEmail() {
+        return email;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
     }
 
     public UserRole getRole() {
@@ -23,11 +33,11 @@ public class LoginResponse {
         this.role = role;
     }
 
-    public String getEmail() {
-        return email;
+    public String getToken() {
+        return token;
     }
 
-    public void setEmail(String email) {
-        this.email = email;
+    public void setToken(String token) {
+        this.token = token;
     }
 }

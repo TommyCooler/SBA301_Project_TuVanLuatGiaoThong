@@ -5,6 +5,7 @@ import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -31,7 +32,9 @@ public class UserController {
         return ResponseEntity.ok(user);
     }
 
+
     @GetMapping("/list-all")
+    @PreAuthorize("hasAuthority('SCOPE_ADMIN')")
     public List<User> getAllUsers() {
         return userService.getAllUsers();
     }

@@ -1,7 +1,13 @@
 package sba.project.tuvanluatgiaothong.service;
 
+import com.nimbusds.jose.*;
+import com.nimbusds.jose.crypto.MACSigner;
+import com.nimbusds.jwt.JWTClaimsSet;
 import lombok.Builder;
+import lombok.experimental.NonFinal;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.factory.PasswordEncoderFactories;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -17,9 +23,15 @@ import sba.project.tuvanluatgiaothong.repository.UserRepository;
 
 import java.sql.Timestamp;
 
+@Slf4j
 @Service
 public class AuthService implements IAuthService {
     private final UserRepository userRepository;
+    @Autowired
+    PasswordEncoder passwordEncoder;
+
+    @Value("${app.jwt.signer-key}")
+    private String SIGNER_KEY;
 
     @Autowired
     public AuthService(UserRepository userRepository) {
@@ -32,12 +44,13 @@ public class AuthService implements IAuthService {
         if(user == null) {
             throw new IllegalArgumentException("Email not found");
         }
-        PasswordEncoder passwordEncoder = new BCryptPasswordEncoder(10);
+
         boolean isPasswordValid = passwordEncoder.matches(loginRequest.getPassword(), user.getPassword());
         if(!isPasswordValid) {
             throw new IllegalArgumentException("Invalid password");
         }
-        return new LoginResponse(user.getEmail(), user.getRole());
+        String token = generateToken(user);
+        return new LoginResponse(user.getEmail(), user.getRole(), token);
     }
 
     @Transactional
@@ -53,7 +66,6 @@ public class AuthService implements IAuthService {
         }
 
         User newUser = new User();
-        PasswordEncoder passwordEncoder = new BCryptPasswordEncoder(10);
         newUser.setFullName(registerRequest.getFullName());
         newUser.setEmail(registerRequest.getEmail());
         newUser.setPassword(passwordEncoder.encode(registerRequest.getPassword()));
@@ -65,4 +77,26 @@ public class AuthService implements IAuthService {
 
         return new RegisterResponse(newUser.getFullName(), newUser.getEmail(), newUser.getPassword(), UserRole.USER, newUser.getCreatedAt(), newUser.isEnable());
     }
+
+    public String generateToken(User user) {
+        JWSHeader jwsHeader = new JWSHeader(JWSAlgorithm.HS512);
+        JWTClaimsSet jwtClaimsSet = new JWTClaimsSet.Builder()
+                .subject(user.getEmail())
+                .issuer("sba.project.tuvanluatgiaothong")
+                .issueTime(new Timestamp(System.currentTimeMillis()))
+                .expirationTime(new Timestamp(System.currentTimeMillis() + 3600000)) // 1 hour expiration
+                .claim("scope",user.getRole().toString())
+                .build();
+        Payload payload = new Payload(jwtClaimsSet.toJSONObject());
+        JWSObject jwsObject = new JWSObject(jwsHeader, payload);
+        try {
+            jwsObject.sign(new MACSigner(SIGNER_KEY.getBytes()));
+            return jwsObject.serialize();
+        } catch (JOSEException e) {
+            log.error("Cannot generate token for email: {}", user.getEmail(), e);
+            throw new RuntimeException(e);
+        }
+    }
+
+
 }
