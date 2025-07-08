@@ -13,7 +13,7 @@ import sba.project.tuvanluatgiaothong.payment.services.PaymentService;
 import java.util.Map;
 
 @RestController
-@RequestMapping("/vnpay")
+@RequestMapping("api/vnpay")
 public class PaymentController {
 
     @Autowired
