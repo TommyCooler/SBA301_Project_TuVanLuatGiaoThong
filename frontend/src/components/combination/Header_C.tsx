@@ -20,7 +20,7 @@ export default function Header_C({ logedUser } : Header_CProps) {
   return (
     <header className="w-full border-b border-gray-200 bg-white" style={mainColorStyle}>
 
-      <HeaderTop_C logedUser={logedUser} />
+      <HeaderTop_C />
 
       <div className="max-w-7xl mx-auto px-2">
         {/* <div className="border-b border-gray-200/50 shadow-sm">
