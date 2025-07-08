@@ -1,16 +1,32 @@
 "use client";
 
 import React, { useState } from "react";
+import { useAuth } from "@/context/AuthContext";
+import { useRouter } from "next/navigation";
 import { FcGoogle } from "react-icons/fc";
 import { AiFillHome } from "react-icons/ai";
+import { signIn } from "next-auth/react";
+import { useSession } from "next-auth/react";
+import { useEffect } from "react";
 
 export default function LoginPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const { loginUser } = useAuth();
+  const router = useRouter();
+  const { data: session, status } = useSession();
 
-  const handleLogin = (e: React.FormEvent) => {
+   // Tự động redirect nếu đã đăng nhập bằng Google hoặc next-auth
+   useEffect(() => {
+    if (status === "authenticated") {
+      router.push("/"); // hoặc trang bạn muốn
+    }
+  }, [status, router]);
+
+  const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
-    // TODO: Gọi API login
+    await loginUser(email, password);
+   
   };
 
   return (
@@ -75,6 +91,7 @@ export default function LoginPage() {
             <button
               type="button"
               className="bg-gray-100 text-black rounded-md py-3 font-medium flex items-center justify-center gap-2 hover:bg-gray-200 transition"
+              onClick={() => signIn("google")}
             >
               <FcGoogle size={22} />
               Đăng nhập với Google

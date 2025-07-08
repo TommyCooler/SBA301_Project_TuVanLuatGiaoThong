@@ -3,16 +3,46 @@
 import React, { useState } from "react";
 import { FcGoogle } from "react-icons/fc";
 import { AiFillHome } from "react-icons/ai";
+import { useRouter } from "next/navigation";
+import { toast } from "sonner";
+import axios from "axios";
+
 
 export default function RegisterPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [fullname, setFullname] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
+  const router = useRouter();
 
-  const handleRegister = (e: React.FormEvent) => {
+  const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault();
-    // TODO: Gọi API register
+  if (password !== confirmPassword) {
+    toast.error("Mật khẩu xác nhận không khớp!");
+    return;
+  }
+  try {
+    const response = await axios.post("http://localhost:8080/register", {
+      fullName: fullname, // chú ý chữ N hoa
+      email,
+      password,
+      confirmPassword,
+    });
+    if (response.status === 200 && response.data.status === "Success") {
+      toast.success("Đăng ký thành công! Vui lòng đăng nhập.");
+      setTimeout(() => {
+        router.push("/login");
+      }, 1500);
+    } else {
+      toast.error(response.data.message || "Đăng ký thất bại!");
+    }
+  } catch (error: any) {
+    if (axios.isAxiosError(error) && error.response) {
+      toast.error(error.response.data.message || "Đăng ký thất bại!");
+    } else {
+      toast.error("Đăng ký thất bại!");
+    }
+  }
   };
 
   return (
