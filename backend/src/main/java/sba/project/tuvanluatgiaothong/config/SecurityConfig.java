@@ -29,7 +29,7 @@ public class SecurityConfig {
         return new BCryptPasswordEncoder(10);
     }
 
-    private final String[] PUBLIC_ENDPOINTS = {"/login", "/register"};
+    private final String[] PUBLIC_ENDPOINTS = {"/**"};
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
