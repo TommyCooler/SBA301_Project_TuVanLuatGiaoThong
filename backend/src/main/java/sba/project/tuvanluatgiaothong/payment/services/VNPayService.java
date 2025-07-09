@@ -1,10 +1,11 @@
 package sba.project.tuvanluatgiaothong.payment.services;
 
-import jakarta.servlet.http.HttpServletRequest;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import jakarta.servlet.http.HttpServletRequest;
 import sba.project.tuvanluatgiaothong.payment.config.VNPayConfig;
-import sba.project.tuvanluatgiaothong.payment.dtos.PurchaseRequestDTO;
+import sba.project.tuvanluatgiaothong.payment.dtos.PurchasePaymentRequestDTO;
 import sba.project.tuvanluatgiaothong.payment.dtos.VNPayResponseDTO;
 import sba.project.tuvanluatgiaothong.payment.utils.VNPayUtils;
 
@@ -12,9 +13,7 @@ import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.Map;
-import java.util.TreeMap;
+import java.util.*;
 
 @Service
 public class VNPayService implements PaymentService {
@@ -23,7 +22,7 @@ public class VNPayService implements PaymentService {
     private VNPayConfig vnPayConfig;
 
     @Override
-    public String createPaymentUrl(HttpServletRequest request, PurchaseRequestDTO requestDTO) {
+    public String createPaymentUrl(HttpServletRequest request, PurchasePaymentRequestDTO requestDTO) {
         String vnp_Version = "2.1.0";
         String vnp_Command = "pay";
         String vnp_OrderInfo = requestDTO.getOrderInfo();
