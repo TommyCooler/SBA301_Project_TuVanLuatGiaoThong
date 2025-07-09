@@ -1,13 +1,12 @@
-package sba.project.tuvanluatgiaothong.dto;
+package sba.project.tuvanluatgiaothong.dto.request;
 
 import java.sql.Timestamp;
-import java.util.UUID;
 
 import lombok.Data;
 
 @Data
 public class LawRequestDto {
-    String tittle;
+    String title;
     String referenceNumber;
     String dateline;
     Timestamp issueDate;

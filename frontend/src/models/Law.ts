@@ -1,12 +1,15 @@
 export type Law = {
   id?: string;
+  referenceNumber?: string;
+  dateline?: string;
   title?: string;
+  lawType?: LawType;
   lawTypeId?: string;
   issueDate?: string;
   effectiveDate?: string;
   sourceUrl?: string;
   filePath?: string;
-  isDeleted?: boolean;
+  deleted?: boolean;
   createdDate?: string;
   updatedDate?: string;
 };

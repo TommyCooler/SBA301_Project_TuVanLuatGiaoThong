@@ -6,7 +6,7 @@ import java.util.UUID;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import sba.project.tuvanluatgiaothong.dto.LawRequestDto;
+import sba.project.tuvanluatgiaothong.dto.request.LawRequestDto;
 import sba.project.tuvanluatgiaothong.dto.LawResponseDto;
 import sba.project.tuvanluatgiaothong.dto.LawTypeResponseDTO;
 import sba.project.tuvanluatgiaothong.pojo.Law;
@@ -57,7 +57,7 @@ public class LawService implements ILawService {
         LawType lawType = lawTypeRepository.findById(UUID.fromString(lawRequestDto.getLawTypeId()))
             .orElseThrow(() -> new IllegalArgumentException("LawType not found with id: " + lawRequestDto.getLawTypeId()));
 
-        law.setTitle(lawRequestDto.getTittle());
+        law.setTitle(lawRequestDto.getTitle());
         law.setLawType(lawType);
         law.setIssueDate(lawRequestDto.getIssueDate());
         law.setReferenceNumber(lawRequestDto.getReferenceNumber());
@@ -98,7 +98,7 @@ public class LawService implements ILawService {
             .orElseThrow(() -> new IllegalArgumentException("LawType not found with id: " + lawRequestDto.getLawTypeId()));
         
         return Law.builder()
-            .title(lawRequestDto.getTittle())
+            .title(lawRequestDto.getTitle())
             .lawType(lawType)
             .issueDate(lawRequestDto.getIssueDate())
                 .referenceNumber(lawRequestDto.getReferenceNumber())
