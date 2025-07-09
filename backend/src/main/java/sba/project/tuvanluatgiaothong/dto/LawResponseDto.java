@@ -7,7 +7,7 @@ import lombok.Data;
 @Data
 public class LawResponseDto {
     UUID id;
-    String tittle;
+    String title;
     Timestamp issueDate;
     Timestamp effectiveDate;
     String referenceNumber;

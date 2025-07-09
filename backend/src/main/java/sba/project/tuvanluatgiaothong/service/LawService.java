@@ -38,6 +38,8 @@ public class LawService implements ILawService {
     @Override
     public LawResponseDto createLaw(LawRequestDto lawRequestDto) {
         // TODO Auto-generated method stub
+        LawType lawType = lawTypeRepository.findById(UUID.fromString(lawRequestDto.getLawTypeId()))
+            .orElseThrow(() -> new IllegalArgumentException("LawType not found with id: " + lawRequestDto.getLawTypeId()));
         Law law = convertLawRequestDtoToLaw(lawRequestDto);
         // Set the ID to a new UUID if it's not provided
         if (law.getId() == null) {
@@ -52,7 +54,7 @@ public class LawService implements ILawService {
     public LawResponseDto update(UUID id, LawRequestDto lawRequestDto) {
        Law law = lawRepository.findById(id)
             .orElseThrow(() -> new IllegalArgumentException("Law not found with id: " + id));
-        LawType lawType = lawTypeRepository.findById(lawRequestDto.getLawTypeId())
+        LawType lawType = lawTypeRepository.findById(UUID.fromString(lawRequestDto.getLawTypeId()))
             .orElseThrow(() -> new IllegalArgumentException("LawType not found with id: " + lawRequestDto.getLawTypeId()));
 
         law.setTitle(lawRequestDto.getTittle());
@@ -63,7 +65,7 @@ public class LawService implements ILawService {
         law.setEffectiveDate(lawRequestDto.getEffectiveDate());
         law.setSourceUrl(lawRequestDto.getSourceUrl());
         law.setFilePath(lawRequestDto.getFilePath());
-        law.setDeleted(lawRequestDto.isDeleted());
+        law.setDeleted(Boolean.FALSE);
 
         lawRepository.save(law);
 
@@ -92,7 +94,7 @@ public class LawService implements ILawService {
 
 
     private Law convertLawRequestDtoToLaw(LawRequestDto lawRequestDto) {
-        LawType lawType = lawTypeRepository.findById(lawRequestDto.getLawTypeId())
+        LawType lawType = lawTypeRepository.findById(UUID.fromString(lawRequestDto.getLawTypeId()))
             .orElseThrow(() -> new IllegalArgumentException("LawType not found with id: " + lawRequestDto.getLawTypeId()));
         
         return Law.builder()
@@ -104,7 +106,7 @@ public class LawService implements ILawService {
             .effectiveDate(lawRequestDto.getEffectiveDate())
             .sourceUrl(lawRequestDto.getSourceUrl())
             .filePath(lawRequestDto.getFilePath())
-            .isDeleted(lawRequestDto.isDeleted())
+            .isDeleted(Boolean.FALSE)
             .build();
     }
    
@@ -119,7 +121,7 @@ public class LawService implements ILawService {
 
         LawResponseDto lawResponseDto = new LawResponseDto();
         lawResponseDto.setId(law.getId());
-        lawResponseDto.setTittle(law.getTitle());
+        lawResponseDto.setTitle(law.getTitle());
         lawResponseDto.setIssueDate(law.getIssueDate());
         lawResponseDto.setReferenceNumber(law.getReferenceNumber());
         lawResponseDto.setDateline(law.getDateline());

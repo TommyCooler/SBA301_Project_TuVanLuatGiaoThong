@@ -7,17 +7,14 @@ import lombok.Data;
 
 @Data
 public class LawRequestDto {
-    UUID id;
     String tittle;
-    String description;
     String referenceNumber;
     String dateline;
     Timestamp issueDate;
     Timestamp effectiveDate;
     String sourceUrl;
     String filePath;
-    boolean isDeleted;
-    UUID lawTypeId;
+    String lawTypeId;
 }
 
 

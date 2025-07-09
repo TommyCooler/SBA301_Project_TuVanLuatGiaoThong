@@ -26,7 +26,7 @@ public class LawController {
     @Autowired
     private ILawService iUsecase;
     
-    @GetMapping("'/health")
+    @GetMapping("/health")
     public String healthCheck() {
         return "Law Service is running";
     }
