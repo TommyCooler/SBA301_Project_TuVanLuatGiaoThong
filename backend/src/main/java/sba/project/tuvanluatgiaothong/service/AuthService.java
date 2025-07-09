@@ -50,7 +50,7 @@ public class AuthService implements IAuthService {
             throw new IllegalArgumentException("Invalid password");
         }
         String token = generateToken(user);
-        return new LoginResponse(user.getEmail(), user.getRole(), token);
+        return new LoginResponse(user.getEmail(), user.getRole(), token, user.getFullName());
     }
 
     @Transactional
