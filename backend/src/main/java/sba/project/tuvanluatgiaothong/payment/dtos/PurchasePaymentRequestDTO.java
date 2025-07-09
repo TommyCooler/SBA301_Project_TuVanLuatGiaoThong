@@ -3,7 +3,7 @@ package sba.project.tuvanluatgiaothong.payment.dtos;
 
 import sba.project.tuvanluatgiaothong.enums.TransactionMethod;
 
-public class PurchaseRequestDTO {
+public class PurchasePaymentRequestDTO {
     private long amount;
     private String orderInfo;
     private TransactionMethod transactionMethod;
