@@ -3,27 +3,21 @@ import { HiCheck, HiChevronDown } from "react-icons/hi";
 import { FiGlobe, FiUser, FiSettings, FiLogOut } from "react-icons/fi";
 import { Color } from "@/configs/CssConstant";
 import Constant from "@/configs/Constant";
+import { Role, User } from "@/models/User";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/modern-ui/avatar";
 import { useState, useRef, useEffect } from "react";
-import GavelIcon from '@mui/icons-material/Gavel';
-import PeopleIcon from '@mui/icons-material/People';
+import { FaUsers } from "react-icons/fa6";
+import { IoNewspaper } from "react-icons/io5";
+import { useRoleValidator } from "@/hooks/useRoleValidator";
 import { useAuth } from "@/context/AuthContext";
-import { useSession, signOut } from "next-auth/react";
 
-// type HeaderTop_CProps = {
-//     logedUser?: User;
-// }
+type HeaderTop_CProps = {
+    logedUser?: User | null;
+}
 
-export default function HeaderTop_C() {
+export default function HeaderTop_C({ logedUser }: HeaderTop_CProps) {
     const [isDropdownOpen, setIsDropdownOpen] = useState(false);
     const dropdownRef = useRef<HTMLDivElement>(null);
-    const { user, logout } = useAuth();
-    const { data: session } = useSession();
-
-    // Lấy tên ưu tiên: user.fullname (login thường) > session.user.name (Google) > "User"
-    const displayName = user?.fullname || session?.user?.name || "User";
-    const avatarUrl = user?.avatarUrl || session?.user?.image || "https://raw.githubusercontent.com/thangdevalone/modern-ui/refs/heads/main/public/assets/logo.png";
-    const isAdmin = user?.role === "ADMIN";
 
     // Close dropdown when clicking outside
     useEffect(() => {
@@ -39,8 +33,8 @@ export default function HeaderTop_C() {
         };
     }, []);
 
-    // Xác định đã đăng nhập: login thường hoặc Google
-    const isLoggedIn = !!user || !!session?.user;
+    const { logout } = useAuth();
+    const { isAdmin, isUser } = useRoleValidator(logedUser);
 
     return (
         <div className="sticky top-0 z-50 bg-white border-b border-gray-200/50 shadow-sm">
@@ -54,8 +48,9 @@ export default function HeaderTop_C() {
                             <HiCheck size={20} />
                         </div>
                         <span
-                            className="text-2xl font-semibold select-none cursor-default"
+                            className="text-2xl font-semibold select-none cursor-pointer"
                             style={{ color: Color.MainColor }}
+                            onClick={() => window.location.href = '/'}
                         >
                             Tư Vấn Luật Giao Thông Việt Nam
                         </span>
@@ -73,64 +68,70 @@ export default function HeaderTop_C() {
                         </button>
 
                         {/* User section */}
-                        {isLoggedIn ? (
+                        {logedUser ? (
                             <div className="relative" ref={dropdownRef}>
                                 <button
                                     onClick={() => setIsDropdownOpen(!isDropdownOpen)}
                                     className="flex items-center space-x-2 hover:bg-gray-50 p-2 rounded-lg transition-colors duration-200"
                                 >
                                     <Avatar className="h-8 w-8">
-                                        <AvatarImage src={avatarUrl} alt="User avatar" />
-                                        <AvatarFallback>{displayName.charAt(0) || 'U'}</AvatarFallback>
+                                        <AvatarImage src={logedUser.avatarUrl || "https://raw.githubusercontent.com/thangdevalone/modern-ui/refs/heads/main/public/assets/logo.png"} alt="User avatar" />
+                                        <AvatarFallback>{logedUser.fullname?.charAt(0) || 'U'}</AvatarFallback>
                                     </Avatar>
-                                    <span className="font-medium">{displayName}</span>
+                                    <span className="font-medium">{logedUser.fullname}</span>
                                     <HiChevronDown className={`h-5 w-5 transition-transform duration-200 ${isDropdownOpen ? 'rotate-180' : ''}`} />
                                 </button>
 
                                 {/* Dropdown Menu */}
                                 {isDropdownOpen && (
                                     <div className="absolute right-0 mt-2 w-48 rounded-lg bg-white shadow-lg border border-gray-200/50 py-1 z-50">
-                                        <a
-                                            href="/settings"
-                                            className="flex items-center space-x-2 px-4 py-2 text-gray-700 hover:bg-gray-50 transition-colors duration-200"
-                                        >
-                                            <FiSettings className="h-5 w-5" />
-                                            <span>Cài đặt</span>
-                                        </a>
+                                        {
+                                            isUser?
+                                                <>
+                                                    <a
+                                                        href="/settings"
+                                                        className="flex items-center space-x-2 px-4 py-2 text-gray-700 hover:bg-gray-50 transition-colors duration-200"
+                                                    >
+                                                        <FiSettings className="h-5 w-5" />
+                                                        <span>Cài đặt</span>
+                                                    </a>
+                                                </>
+                                                : null
+                                        }
+                                        {/* Admin options */}
+                                        {
+                                            isAdmin?
+                                                <>
+                                                    <a
+                                                        href="/admin/dashboard"
+                                                        className="flex items-center space-x-2 px-4 py-2 text-gray-700 hover:bg-gray-50 transition-colors duration-200"
+                                                    >
+                                                        <FaUsers className="h-5 w-5" />
+                                                        <span>Quản lý trang web</span>
+                                                    </a>
+
+                                                    {/* <a
+                                                        href="/admin/law-management"
+                                                        className="flex items-center space-x-2 px-4 py-2 text-gray-700 hover:bg-gray-50 transition-colors duration-200"
+                                                    >
+                                                        <IoNewspaper className="h-5 w-5" />
+                                                        <span>Quản lý dữ liệu</span>
+                                                    </a> */}
+                                                </>
+                                                : null
+                                        }
+
+
                                         <hr className="my-1 border-t border-gray-100" />
                                         <button
                                             onClick={() => {
-                                                if (session?.user) {
-                                                    signOut({ callbackUrl: "/" });
-                                                } else {
-                                                    logout();
-                                                }
+                                                logout()
                                             }}
-                                            className="w-full flex items-center space-x-2 px-4 py-2 text-red-700 hover:bg-gray-50 transition-colors duration-200"
+                                            className="w-full flex items-center space-x-2 px-4 py-2 text-red-700 hover:bg-gray-50 transition-colors duration-200 cursor-pointer"
                                         >
                                             <FiLogOut className="h-5 w-5" />
                                             <span>Đăng xuất</span>
                                         </button>
-                                        {/* Nếu là ADMIN thì hiện thêm các mục bên dưới */}
-                                        {isAdmin && (
-                                            <>
-                                                <a
-                                                    href="/admin/law-management"
-                                                    className="flex items-center space-x-2 px-4 py-2 text-gray-700 hover:bg-gray-50 transition-colors duration-200"
-                                                >
-                                                    <GavelIcon />
-                                                    <span>Luật Hiện Hành</span>
-                                                </a>
-                                                <hr className="my-1 border-t border-gray-100" />
-                                                <a
-                                                    href="/admin/user-management"
-                                                    className="flex items-center space-x-2 px-4 py-2 text-gray-700 hover:bg-gray-50 transition-colors duration-200"
-                                                >
-                                                    <PeopleIcon />
-                                                    <span>Quản lý người dùng</span>
-                                                </a>
-                                            </>
-                                        )}
                                     </div>
                                 )}
                             </div>

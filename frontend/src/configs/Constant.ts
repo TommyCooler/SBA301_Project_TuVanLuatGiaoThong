@@ -3,16 +3,19 @@ const Constant =  {
     Page: {
         HomePage: '/',
         LoginPage: '/login',
+        AboutPage: '/about',
+        LawsPage: '/laws',
         RegisterPage: '/register',
         VerifyPage: '/verifying',
         ForgotPasswordPage: '/forgot-password',
         ResetPasswordPage: '/reset-password',
 
-        AdminDashboardPage: '/admin/blog-management',
-        AdminResourcePage: '/admin/resource-management',
-        AdminAccountManagementPage: '/admin/account-management',
+        AdminDashboardPage: '/admin/dashboard',
+    },
 
-        MemberAccountManagementPage: '/user/profile',
+    FolderOnCloud:{
+        Law: "laws",
+        ProfileImage: "profile-images"
     }
 }
 
