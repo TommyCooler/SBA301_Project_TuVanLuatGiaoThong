@@ -2,9 +2,9 @@ package sba.project.tuvanluatgiaothong.controller;
 
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import sba.project.tuvanluatgiaothong.dto.ApiResponse;
 import sba.project.tuvanluatgiaothong.dto.request.LoginRequest;
@@ -14,6 +14,7 @@ import sba.project.tuvanluatgiaothong.dto.response.RegisterResponse;
 import sba.project.tuvanluatgiaothong.service.AuthService;
 
 @RestController
+@RequestMapping("/api/v1")
 public class AuthController {
     @Autowired
     private AuthService authService;

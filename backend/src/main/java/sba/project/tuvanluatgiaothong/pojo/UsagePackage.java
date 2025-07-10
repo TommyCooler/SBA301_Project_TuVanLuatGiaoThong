@@ -2,7 +2,6 @@ package sba.project.tuvanluatgiaothong.pojo;
 
 import jakarta.persistence.*;
 import lombok.*;
-import sba.project.tuvanluatgiaothong.pojo.UserPackage;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;

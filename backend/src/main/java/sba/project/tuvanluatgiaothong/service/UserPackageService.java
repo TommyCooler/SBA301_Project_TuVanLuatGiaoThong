@@ -6,7 +6,7 @@ import org.springframework.transaction.annotation.Transactional;
 import sba.project.tuvanluatgiaothong.dto.request.PurchasePackageRequestDTO;
 import sba.project.tuvanluatgiaothong.dto.response.UserPackageDTO;
 import sba.project.tuvanluatgiaothong.enums.UserPackageStatus;
-import sba.project.tuvanluatgiaothong.exception.ResourceNotFoundException;
+import sba.project.tuvanluatgiaothong.exception.CustomExceptions.ResourceNotFoundException;
 import sba.project.tuvanluatgiaothong.pojo.User;
 import sba.project.tuvanluatgiaothong.pojo.UsagePackage;
 import sba.project.tuvanluatgiaothong.pojo.UserPackage;

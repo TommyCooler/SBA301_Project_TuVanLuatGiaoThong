@@ -67,7 +67,7 @@ export const UserProvider = ({ children }: { children: React.ReactNode }) => {
                 // Chuyển hướng theo role
                 if (userObj.role === "ADMIN") {
                     toast.success("Đăng nhập thành công!");
-                    router.push("/admin/law-management");
+                    router.push("/admin/dashboard");
                 } else {
                     toast.success("Đăng nhập thành công!");
                     router.push("/");
