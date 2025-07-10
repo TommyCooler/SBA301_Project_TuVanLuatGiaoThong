@@ -1,6 +1,5 @@
 package sba.project.tuvanluatgiaothong.pojo;
 
-import java.sql.Timestamp;
 import java.time.Instant;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
@@ -25,7 +24,7 @@ import lombok.NoArgsConstructor;
 public class LawType {
 
     @Id
-    private UUID id;
+    private UUID id = UUID.randomUUID();
 
     @Column(name = "name", length = 255)
     private String name;
@@ -34,16 +33,14 @@ public class LawType {
     private boolean isDeleted;
 
     @Column(name = "created_date")
-    private Timestamp createdDate;
+    private Instant createdDate;
 
     @Column(name = "updated_date")
-    private Timestamp updatedDate;
+    private Instant updatedDate;
 
     @PrePersist
     public void prePersist() {
         var zoneId = ZoneId.of("Asia/Ho_Chi_Minh");
-        Instant now = ZonedDateTime.now(zoneId).toInstant();
-        this.createdDate = Timestamp.from(now);
-        this.updatedDate = Timestamp.from(now);
+        this.createdDate = ZonedDateTime.now(zoneId).toInstant();
     }
 }
