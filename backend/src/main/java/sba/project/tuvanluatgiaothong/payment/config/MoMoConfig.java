@@ -1,49 +1,49 @@
-package sba.project.tuvanluatgiaothong.payment.config;
+// package sba.project.tuvanluatgiaothong.payment.config;
 
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.annotation.Configuration;
+// import org.springframework.beans.factory.annotation.Value;
+// import org.springframework.context.annotation.Configuration;
 
-@Configuration
-public class MoMoConfig {
-    @Value("${momo.partner-code}")
-    private String partnerCode;
+// @Configuration
+// public class MoMoConfig {
+//     @Value("${momo.partner-code}")
+//     private String partnerCode;
 
-    @Value("${momo.access-key}")
-    private String accessKey;
+//     @Value("${momo.access-key}")
+//     private String accessKey;
 
-    @Value("${momo.secret-key}")
-    private String secretKey;
+//     @Value("${momo.secret-key}")
+//     private String secretKey;
 
-    @Value("${momo.payment-url}")
-    private String paymentUrl;
+//     @Value("${momo.payment-url}")
+//     private String paymentUrl;
 
-    @Value("${momo.return-url}")
-    private String returnUrl;
+//     @Value("${momo.return-url}")
+//     private String returnUrl;
 
-    @Value("${momo.ipn-url}")
-    private String ipnUrl;
+//     @Value("${momo.ipn-url}")
+//     private String ipnUrl;
 
-    public String getPartnerCode() {
-        return partnerCode;
-    }
+//     public String getPartnerCode() {
+//         return partnerCode;
+//     }
 
-    public String getAccessKey() {
-        return accessKey;
-    }
+//     public String getAccessKey() {
+//         return accessKey;
+//     }
 
-    public String getSecretKey() {
-        return secretKey;
-    }
+//     public String getSecretKey() {
+//         return secretKey;
+//     }
 
-    public String getPaymentUrl() {
-        return paymentUrl;
-    }
+//     public String getPaymentUrl() {
+//         return paymentUrl;
+//     }
 
-    public String getReturnUrl() {
-        return returnUrl;
-    }
+//     public String getReturnUrl() {
+//         return returnUrl;
+//     }
 
-    public String getIpnUrl() {
-        return ipnUrl;
-    }
-}
+//     public String getIpnUrl() {
+//         return ipnUrl;
+//     }
+// }

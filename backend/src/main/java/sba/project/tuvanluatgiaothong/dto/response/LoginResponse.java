@@ -1,7 +1,6 @@
 package sba.project.tuvanluatgiaothong.dto.response;
 
 import sba.project.tuvanluatgiaothong.enums.UserRole;
-import sba.project.tuvanluatgiaothong.pojo.User;
 
 public class LoginResponse {
     private String email;

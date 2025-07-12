@@ -2,10 +2,10 @@ export const Api = {
     BASE_API: "http://localhost:8080",
 
     Authenticaion: {
-        // LOGIN: '/api/v1/identity/authenticate',
-        LOGIN: '/api/v1/login',
-        // REGISTER: '/api/v1/identity/register-with-verifying',
-        REGISTER: '/api/v1/register',
+        LOGIN: '/api/v1/identity/authenticate',
+        // LOGIN: '/api/v1/login',
+        REGISTER: '/api/v1/identity/register-with-verifying',
+        // REGISTER: '/api/v1/register',
         VERIFY_OTP: '/api/v1/identity/verify-otp',
         REFRESH: '/api/v1/identity/refresh',
         USER_INFO: '/api/v1/identity/user'

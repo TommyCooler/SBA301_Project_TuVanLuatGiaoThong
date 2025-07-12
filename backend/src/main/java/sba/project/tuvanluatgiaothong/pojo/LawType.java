@@ -24,6 +24,7 @@ import lombok.NoArgsConstructor;
 public class LawType {
 
     @Id
+    @Builder.Default
     private UUID id = UUID.randomUUID();
 
     @Column(name = "name", length = 255)

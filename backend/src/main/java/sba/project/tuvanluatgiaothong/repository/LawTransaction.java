@@ -30,20 +30,17 @@ public class LawTransaction implements ITransactionLaw {
 
     @Override
     public Law save(Law law) {
-        // TODO Auto-generated method stub
         return lawRepository.save(law);
     }
 
     @Override
     public Law update(Law law) {
-        // TODO Auto-generated method stub
         lawRepository.save(law);
         throw new UnsupportedOperationException("Unimplemented method 'update'");
     }
 
     @Override
     public boolean delete(UUID lawId) {
-        // TODO Auto-generated method stub
         lawRepository.deleteById(lawId);
         throw new UnsupportedOperationException("Unimplemented method 'delete'");
     }
