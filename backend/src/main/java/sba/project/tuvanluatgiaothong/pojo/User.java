@@ -24,7 +24,6 @@ import java.util.*;
 public class User implements UserDetails {
 
     @Id
-    @Builder.Default
     private UUID id = UUID.randomUUID();
 
     @Column(name = "username", length = 60, unique = true)
@@ -43,7 +42,7 @@ public class User implements UserDetails {
     private String avatarUrl;
 
     @Column(name = "birthday")
-    private Date birthDay;
+    private Instant birthDay;
 
     @Column(name = "is_enable")
     private boolean isEnable = false;
@@ -151,11 +150,11 @@ public class User implements UserDetails {
         this.avatarUrl = avatarUrl;
     }
 
-    public Date getBirthDay() {
+    public Instant getBirthDay() {
         return birthDay;
     }
 
-    public void setBirthDay(Date birthDay) {
+    public void setBirthDay(Instant birthDay) {
         this.birthDay = birthDay;
     }
 
@@ -189,5 +188,13 @@ public class User implements UserDetails {
 
     public void setUpdatedDate(Instant updatedDate) {
         this.updatedDate = updatedDate;
+    }
+
+    public User(String usernameAuth, String email, String passwordAuth, String fullname, Role role) {
+        this.usernameAuth = usernameAuth;
+        this.email = email;
+        this.passwordAuth = passwordAuth;
+        this.fullname = fullname;
+        this.role = role;
     }
 }

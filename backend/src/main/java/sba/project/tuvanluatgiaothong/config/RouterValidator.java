@@ -1,37 +1,72 @@
+// package sba.project.tuvanluatgiaothong.config;
+
+// import org.springframework.stereotype.Service;
+// import org.springframework.http.server.reactive.ServerHttpRequest;
+// import java.util.List;
+// import java.util.function.Predicate;
+
+// /*
+//  * File: <file_name>
+//  * Description: <brief description of what this file does>
+//  *
+//  * Version History:
+//  * ----------------------------------------------------------------------------
+//  * v1.0 - ?/2/2025 - Nguyen Tien Thuan - Initial open authentication api.
+//  * ----------------------------------------------------------------------------
+//  *
+//  * Author(s): Nguyen Tien Thuan
+//  * Last Modified: 26/3/2025
+//  * Notes:
+//  */
+// @Service
+// public class RouterValidator {
+//     /**
+//      * List of open endpoints that do not require authentication
+//      */
+//     public static final List<String> openEndPoints = List.of(
+//             "/auth/**",
+//             "/api/v1/identity",
+//             "/api/v1/identity/**",
+//             "/api/auth/**",
+//             "/api/v1/chatbot/health",
+// //            "/api/v1/chatbot/generate",
+// //            "/api/v1/chatbot/generate-from-pdf",
+// //            "/api/v1/chatbot/generate-from-pdf-multiparth",
+//             "/api/v1/chatbot/test-redis",
+//             "/api/v1/aws/s3/health",
+//             "/api/v1/law/health",
+//             "/api/v1/law/get",
+//             "/api/v1/law/get-all",
+//             "/api/v1/law/type/get",
+//             "/api/v1/law/type/get-all",
+//             "/api/v1/user-packages/usage-package/get-all",
+//             "/api/v1/user-packages/usage-package/get"
+//     );
+
+//     /**
+//      * This method is used to check if the request is secured or not.
+//      * If the request is secured, it will return true.
+//      */
+//     public Predicate<ServerHttpRequest> isSecured = serverHttpRequest -> openEndPoints.stream()
+//                     .noneMatch(uri -> serverHttpRequest.getURI().getPath().contains(uri));
+// }
+
 package sba.project.tuvanluatgiaothong.config;
 
 import org.springframework.stereotype.Service;
-import org.springframework.http.server.reactive.ServerHttpRequest;
-import java.util.List;
-import java.util.function.Predicate;
 
-/*
- * File: <file_name>
- * Description: <brief description of what this file does>
- *
- * Version History:
- * ----------------------------------------------------------------------------
- * v1.0 - ?/2/2025 - Nguyen Tien Thuan - Initial open authentication api.
- * ----------------------------------------------------------------------------
- *
- * Author(s): Nguyen Tien Thuan
- * Last Modified: 26/3/2025
- * Notes:
- */
 @Service
 public class RouterValidator {
     /**
      * List of open endpoints that do not require authentication
+     * Chuyển từ Gateway sang Web Security
      */
-    public static final List<String> openEndPoints = List.of(
+    public static final String[] PUBLIC_ENDPOINTS = {
             "/auth/**",
             "/api/v1/identity",
             "/api/v1/identity/**",
             "/api/auth/**",
             "/api/v1/chatbot/health",
-//            "/api/v1/chatbot/generate",
-//            "/api/v1/chatbot/generate-from-pdf",
-//            "/api/v1/chatbot/generate-from-pdf-multiparth",
             "/api/v1/chatbot/test-redis",
             "/api/v1/aws/s3/health",
             "/api/v1/law/health",
@@ -41,12 +76,21 @@ public class RouterValidator {
             "/api/v1/law/type/get-all",
             "/api/v1/user-packages/usage-package/get-all",
             "/api/v1/user-packages/usage-package/get"
-    );
+    };
 
     /**
-     * This method is used to check if the request is secured or not.
-     * If the request is secured, it will return true.
+     * User endpoints - cần ROLE_USER
      */
-    public Predicate<ServerHttpRequest> isSecured = serverHttpRequest -> openEndPoints.stream()
-                    .noneMatch(uri -> serverHttpRequest.getURI().getPath().contains(uri));
+    public static final String[] USER_ENDPOINTS = {
+            "/api/v1/chatbot/**",
+            "/api/v1/user-packages/**"
+    };
+
+    /**
+     * Admin endpoints - cần ROLE_ADMIN
+     */
+    public static final String[] ADMIN_ENDPOINTS = {
+            "/api/v1/admin/**",
+            "/api/v1/*/admin/**"
+    };
 }

@@ -13,14 +13,16 @@ import lombok.NoArgsConstructor;
 public class UserDataResponse {
 
     private String id;
-    private String roleNumber;
     private String username;
     private String email;
     private String fullname;
     private String avatarUrl;
     private String birthDay;
-    private boolean isEnable;
+    private Boolean isEnable = false;
     private String createdDate;
     private String updatedDate;
     private String role;
+    private Integer level;
+    private Boolean notCreateUsernameAndPassword;
+
 }

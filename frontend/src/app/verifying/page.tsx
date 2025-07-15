@@ -1,44 +1,109 @@
 'use client'
 import { Api } from '@/configs/Api';
+import Constant from '@/configs/Constant';
+import { useAuth } from '@/context/AuthContext';
 import useAxios from '@/hooks/useAxios';
-import { User } from '@/models/User';
-// import { useRouter } from 'next/navigation';
-import  { useEffect, useState } from 'react'
+import { useRoleValidator } from '@/hooks/useRoleValidator';
+import { useRouter } from 'next/navigation';
+import { useEffect, useState, useRef } from 'react'
 import { toast } from 'sonner';
-import { isUser, isAdmin } from './RoleValidator';
 
 export default function Page() {
     const api = useAxios();
-    // const router = useRouter();
-    const [user, setUser] = useState<User | null>(null);
+    const { user, setUser } = useAuth();
+    const router = useRouter();
+    const { isUser, isAdmin, role } = useRoleValidator(user);
+    const [loading, setLoading] = useState(true);
+    const [timeoutError, setTimeoutError] = useState(false);
+    const timeoutRef = useRef<NodeJS.Timeout | null>(null);
 
     useEffect(() => {
+        // Set a timeout for verification
+        timeoutRef.current = setTimeout(() => {
+            setLoading(false);
+            setTimeoutError(true);
+        }, 10000); // 10 seconds
+
         const fetchData = async () => {
             console.log("verifying....");
             const response = await api.get(Api.Authenticaion.USER_INFO)
+            console.log("response : ", response);
             if (response.status === 200) {
-                console.log(response.data.dataResponse);
                 setUser(response.data.dataResponse)
             }
             else {
                 toast('Something went wrong!')
             }
+            if (timeoutRef.current) clearTimeout(timeoutRef.current);
+            setLoading(false);
         }
-        fetchData().catch(console.error)
-    }, [api]);
+        fetchData().catch((err) => {
+            console.error(err);
+            if (timeoutRef.current) clearTimeout(timeoutRef.current);
+            setLoading(false);
+        })
+        // Cleanup timeout on unmount
+        return () => {
+            if (timeoutRef.current) clearTimeout(timeoutRef.current);
+        }
+    }, [api, setUser]);
 
-    if (user && user.role) {
-        if (isUser(user)) {
-            console.log("User")
+    useEffect(() => {
+        if (user && user.role) {
+            // console.log("user role : ", user.role);
+            // console.log("isUser : ", isUser);
+            // console.log("isAdmin : ", isAdmin);
+            // console.log("User: ", user);
+            
+            if (isUser) {
+                router.push(Constant.Page.HomePage)
+            }
+            if (isAdmin) {
+                router.push(Constant.Page.AdminDashboardPage)
+            }
         }
-        if (isAdmin(user)) {
-            console.log("Admin")
-        }
-    }
+    }, [user, isUser, isAdmin, role, router]);
     
     return (
         <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' }}>
-            {/* <LoadingEffect_DaisyUI /> */}
+            {loading && !timeoutError && (
+                <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+                    <div style={{
+                        border: '6px solid #f3f3f3',
+                        borderTop: '6px solid #3498db',
+                        borderRadius: '50%',
+                        width: 50,
+                        height: 50,
+                        animation: 'spin 1s linear infinite'
+                    }} />
+                    <style>{`
+                        @keyframes spin {
+                            0% { transform: rotate(0deg); }
+                            100% { transform: rotate(360deg); }
+                        }
+                    `}</style>
+                    <span style={{ marginTop: 16 }}>Đang đăng nhập...</span>
+                </div>
+            )}
+            {timeoutError && (
+                <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+                    <span style={{ color: 'red', marginBottom: 16 }}>Có lỗi xảy ra khi đăng nhập! Vui lòng thử lại</span>
+                    <button
+                        style={{
+                            padding: '8px 16px',
+                            background: '#3498db',
+                            color: 'white',
+                            border: 'none',
+                            borderRadius: 4,
+                            cursor: 'pointer',
+                            fontSize: 16
+                        }}
+                        onClick={() => router.push(Constant.Page.HomePage)}
+                    >
+                        Trở về trang chủ
+                    </button>
+                </div>
+            )}
         </div>
     )
 }

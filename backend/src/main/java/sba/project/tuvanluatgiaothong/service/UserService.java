@@ -1,73 +1,130 @@
-// package sba.project.tuvanluatgiaothong.service;
+package sba.project.tuvanluatgiaothong.service;
 
-// import java.util.List;
-// import java.util.UUID;
-
-// import org.springframework.beans.factory.annotation.Autowired;
-// import org.springframework.security.crypto.password.PasswordEncoder;
-// import org.springframework.stereotype.Service;
-
-// import sba.project.tuvanluatgiaothong.pojo.User;
-// import sba.project.tuvanluatgiaothong.repository.UserRepository;
-
-// @Service
-// public class UserService implements IUserService {
-
-//     @Autowired
-//     private UserRepository userRepository;
-
-//     @Autowired
-//     private PasswordEncoder passwordEncoder;
-
-//     public User getUserById(UUID userId) {
-//         // Logic to retrieve a user by ID
-//         // This would typically involve fetching the user from the database.
-//         return userRepository.findById(userId)
-//                 .orElseThrow(() -> new IllegalArgumentException("User not found"));
-//     }
-
-//     public List<User> getAllUsers() {
-//         // Logic to retrieve all users
-//         // This would typically involve fetching all user records from the database.
-//         return userRepository.findAll();
-//     }
-    
+import lombok.RequiredArgsConstructor;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.stereotype.Service;
+import sba.project.tuvanluatgiaothong.dto.request.PasswordChangeRequest;
+import sba.project.tuvanluatgiaothong.dto.request.UpdatingUsernameAndPasswordRequest;
+import sba.project.tuvanluatgiaothong.dto.request.UserInfoRequest;
+import sba.project.tuvanluatgiaothong.dto.response.ApiResponse;
+import sba.project.tuvanluatgiaothong.exception.CustomExceptions;
+import sba.project.tuvanluatgiaothong.exception.ResourceNotFoundException;
+import sba.project.tuvanluatgiaothong.mapper.UserMapper;
+import sba.project.tuvanluatgiaothong.pojo.User;
+import sba.project.tuvanluatgiaothong.repository.UserRepository;
+import sba.project.tuvanluatgiaothong.utils.HashingUtil;
 
 
-//     public User updateUserProfile(UUID userId, String fullName, String avatarUrl) {
-//         User user = userRepository.findById(userId)
-//                 .orElseThrow(() -> new IllegalArgumentException("User not found"));
-//         user.setFullName(fullName);
-//         user.setAvatarUrl(avatarUrl);
-//         user.setUpdatedAt(new java.sql.Timestamp(System.currentTimeMillis()).toInstant());
-//         return userRepository.save(user);
-//     }
+import java.time.Instant;
+import java.util.Optional;
+import java.util.UUID;
 
-//     @Override
-//     public User updateUserPassword(UUID userId, String oldPassword, String newPassword) {
-//         return null;
-//     }
+@Service
+@RequiredArgsConstructor
+public class UserService implements IUserService {
 
-//     public User updateUserPassword(UUID userId, String newPassword) {
-//         // Logic to update user password
-//         // This would typically involve fetching the user by ID,
-//         // hashing the new password, and saving the changes to the database.
-//         User user = userRepository.findById(userId)
-//                 .orElseThrow(() -> new IllegalArgumentException("User not found"));
-//         user.setPassword(passwordEncoder.encode(newPassword));
-//         user.setUpdatedAt(new java.sql.Timestamp(System.currentTimeMillis()).toInstant());
-//         return userRepository.save(user);
-//     }
+    private final UserRepository userRepository;
+    private final UserMapper userMapper;
+    private final HashingUtil hashingUtil;
+    private final PasswordEncoder passwordEncoder;
 
-//     public void deleteUser(UUID userId) {
-//         userRepository.findById(userId).ifPresent(userRepository::delete);
-//     }
+    @Override
+    public ApiResponse<?> updateInfo(String userId, UserInfoRequest userInfoRequest) {
+        String decodedUserId = hashingUtil.decode(userId);
+        User user = userRepository.findById(UUID.fromString(decodedUserId))
+                .orElseThrow(() -> new CustomExceptions.ResourceNotFoundException("Cannot find user by id: " + decodedUserId));
 
-//     public User updateUserIsEnable(UUID userId, Boolean isEnable) {
-//         User user = userRepository.findById(userId)
-//                 .orElseThrow(() -> new IllegalArgumentException("User not found"));
-//         user.setEnable(isEnable);
-//         user.setUpdatedAt(new java.sql.Timestamp(System.currentTimeMillis()).toInstant());
-//         return userRepository.save(user);
-//     }
-// }
+        try {
+            user.setFullname(userInfoRequest.getFullname());
+            user.setAvatarUrl(userInfoRequest.getAvatarUrl());
+            user.setBirthDay(userInfoRequest.getBirthDay());
+            user.setUpdatedDate(Instant.now());
+            User updatedUser = userRepository.save(user);
+            return new ApiResponse<>(
+                    userMapper.toResponse(updatedUser),
+                    "Update user info successfully",
+                    "success"
+            );
+        } catch (Exception e) {
+            throw new CustomExceptions.InternalServerException("An error occurred while updating user info: " + e.getMessage());
+        }
+    }
+
+    @Override
+    public ApiResponse<?> updateUsernameAndPassword(String userId, UpdatingUsernameAndPasswordRequest request) {
+        String decodedUserId = hashingUtil.decode(userId);
+        User user = userRepository.findById(UUID.fromString(decodedUserId))
+                .orElseThrow(() -> new ResourceNotFoundException("Cannot find user by id: " + decodedUserId));
+
+        boolean isExistUser = userRepository.existsByUsernameAuth(request.getNewUsername());
+        if (isExistUser) {
+            return new ApiResponse<>(
+//                    null,
+                    Optional.empty(),
+                    "Tên đăng nhập đã tồn tại, vui lòng chọn tên khác",
+                    "fail"
+            );
+        }
+
+        try {
+            if (user.getPasswordAuth() == null || user.getPasswordAuth().isEmpty()) {
+                user.setUsernameAuth(request.getNewUsername());
+                user.setPasswordAuth(passwordEncoder.encode(request.getNewPassword()));
+                user.setUpdatedDate(Instant.now());
+                User updatedUser = userRepository.save(user);
+                return new ApiResponse<>(
+                        userMapper.toResponse(updatedUser),
+                        "",
+                        "success"
+                );
+            } else {
+                return new ApiResponse<>(
+                        Optional.empty(),
+                        "Update username and password unsuccessfully, user already has username and password",
+                        "fail"
+                );
+            }
+        } catch (Exception e) {
+            throw new CustomExceptions.InternalServerException("An error occurred while updating username and password: " + e.getMessage());
+        }
+    }
+
+    @Override
+    public ApiResponse<?> changePassword(String userId, PasswordChangeRequest changePasswordRequest) {
+        String decodedUserId = hashingUtil.decode(userId);
+        User user = userRepository.findById(UUID.fromString(decodedUserId))
+                .orElseThrow(() -> new ResourceNotFoundException("Cannot find user by id: " + decodedUserId));
+
+        try {
+            if (user.getPasswordAuth() == null || user.getPasswordAuth().isEmpty()) {
+                return new ApiResponse<>(
+//                        null,
+                        Optional.empty(),
+                        "Đổi mật khẩu không thành công, người dùng chưa có mật khẩu",
+                        "fail"
+                );
+            }
+
+            if (!passwordEncoder.matches(changePasswordRequest.getOldPassword(), user.getPasswordAuth())) {
+                return new ApiResponse<>(
+//                        null,
+                        Optional.empty(),
+                        "Đổi mật khẩu không thành công!",
+                        "fail"
+                );
+            }
+
+            user.setPasswordAuth(passwordEncoder.encode(changePasswordRequest.getNewPassword()));
+            User updatedUser = userRepository.save(user);
+
+            return new ApiResponse<>(
+                    userMapper.toResponse(updatedUser),
+                    "Đổi mật khẩu thành công",
+                    "success"
+            );
+
+        } catch (Exception e) {
+            throw new CustomExceptions.InternalServerException("An error occurred while changing password: " + e.getMessage());
+        }
+    }
+}

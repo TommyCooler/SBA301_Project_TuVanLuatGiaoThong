@@ -18,6 +18,7 @@ import software.amazon.awssdk.services.s3.presigner.model.GetObjectPresignReques
 import software.amazon.awssdk.services.s3.model.GetObjectRequest;
 import software.amazon.awssdk.services.s3.model.PutObjectRequest;
 import java.time.Duration;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -52,7 +53,7 @@ public class AwsS3BuckerService implements IAwsS3BucketService {
         s3Client.putObject(request, RequestBody.empty());
 
         String url = String.format("https://%s.s3.%s.amazonaws.com/%s", bucketName, region, folderKey);
-        return new ApiResponse<>("success", "Folder created successfully", url);
+        return new ApiResponse<>("success", "Folder created successfully", Optional.of(url));
     }
 
     @Override
@@ -72,7 +73,7 @@ public class AwsS3BuckerService implements IAwsS3BucketService {
             s3Client.putObject(request, RequestBody.fromInputStream(file.getInputStream(), file.getSize()));
 
             String url = String.format("https://%s.s3.%s.amazonaws.com/%s", bucketName, region, fileName);
-            return new ApiResponse<>("success", "File uploaded successfully", url);
+            return new ApiResponse<>("success", "File uploaded successfully", Optional.of(url));
 
         } catch (IOException | S3Exception e) {
             throw new RuntimeException("Error uploading file to S3", e);

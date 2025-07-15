@@ -10,6 +10,7 @@ import sba.project.tuvanluatgiaothong.repository.IUserTransaction;
 import sba.project.tuvanluatgiaothong.repository.UserRepository;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
@@ -51,7 +52,7 @@ public class UserManagementService implements IUserManagementService {
         return new ApiResponse<>(
                 "success",
                 "Người dùng đã bị khóa hóa thành công",
-                null
+                Optional.empty()
         );
     }
 }

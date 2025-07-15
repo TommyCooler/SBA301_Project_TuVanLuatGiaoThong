@@ -1,5 +1,6 @@
 package sba.project.tuvanluatgiaothong.mapper;
 
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 
 import sba.project.tuvanluatgiaothong.dto.request.RegisterRequest;
@@ -13,43 +14,47 @@ import sba.project.tuvanluatgiaothong.utils.HashingUtil;
 public class UserMapper {
 
     private final HashingUtil hashingUtil;
+    private final PasswordEncoder passwordEncoder;
 
-    public UserMapper(HashingUtil hashingUtil) {
+    public UserMapper(HashingUtil hashingUtil, PasswordEncoder passwordEncoder) {
         this.hashingUtil = hashingUtil;
+        this.passwordEncoder = passwordEncoder;
     }
 
     public User toEntity(RegisterRequest registerRequest) {
-        return User.builder()
-            .usernameAuth(registerRequest.getUsername())
-            .email(registerRequest.getEmail())
-            .passwordAuth(registerRequest.getPassword())
-            .fullname(registerRequest.getFullname())
-            .role("USER".equalsIgnoreCase(registerRequest.getRole()) ? Role.USER : Role.ADMIN)
-            .build();
+        return new User(
+                registerRequest.getUsername(),
+                registerRequest.getEmail(),
+                registerRequest.getPassword(),
+                registerRequest.getFullname(),
+                "USER".equalsIgnoreCase(registerRequest.getRole()) ? Role.USER : Role.ADMIN
+        );
     }
 
     public User toEntity(RegisterUserRequest registerUserRequest) {
-        return User.builder()
-            .usernameAuth(registerUserRequest.getUsername())
-            .email(registerUserRequest.getEmail())
-            .passwordAuth(registerUserRequest.getPassword())
-            .fullname(registerUserRequest.getFullname())
-            .role(Role.USER)
-            .build();
+        return new User(
+                registerUserRequest.getUsername(),
+                registerUserRequest.getEmail(),
+                registerUserRequest.getPassword(),
+                registerUserRequest.getFullname(),
+                Role.USER
+        );
     }
 
     public UserDataResponse toResponse(User user) {
-        return UserDataResponse.builder()
-            .id(hashingUtil.hash(user.getId().toString()))
-            .username(user.getUsernameAuth())
-            .email(user.getEmail())
-            .fullname(user.getFullname())
-            .avatarUrl(user.getAvatarUrl())
-            .birthDay(user.getBirthDay() != null ? user.getBirthDay().toString() : null)
-            .isEnable(user.isEnable())
-            .role(user.getRole() != null ? hashingUtil.hash(user.getRole().name()) : null)
-            .createdDate(user.getCreatedDate().toString())
-            .updatedDate(user.getUpdatedDate().toString())
-            .build();
+        return new UserDataResponse(
+                hashingUtil.hash(user.getId().toString()),
+                user.getUsernameAuth(),
+                user.getEmail(),
+                user.getFullname(),
+                user.getAvatarUrl(),
+                user.getBirthDay() != null ? user.getBirthDay().toString() : null,
+                user.isEnable(),
+                user.getCreatedDate() != null ? user.getCreatedDate().toString() : null,
+                user.getUpdatedDate() != null ? user.getUpdatedDate().toString() : null,
+                user.getRole() != null ? hashingUtil.hash(user.getRole().name()) : null,
+                null, // level chưa thấy trong entity nên để null
+                user.getPasswordAuth() == null || user.getPasswordAuth().isEmpty()
+        );
     }
 }
