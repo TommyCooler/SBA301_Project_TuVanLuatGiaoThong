@@ -1,18 +1,20 @@
 package sba.project.tuvanluatgiaothong.dto.response;
 
-import lombok.Builder;
-import lombok.Data;
+import lombok.*;
 
 @Data
 @Builder
+@AllArgsConstructor
+@NoArgsConstructor
 public class ApiResponse<T> {
     private String status;
     private String message;
     private T dataResponse;
 
-    public ApiResponse(String status, String message, T dataResponse) {
-        this.status = status;
-        this.message = message;
+    public ApiResponse(T dataResponse, String message, String status) {
         this.dataResponse = dataResponse;
+        this.message = message;
+        this.status = status;
     }
 }
+

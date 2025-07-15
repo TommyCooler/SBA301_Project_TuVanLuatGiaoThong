@@ -1,65 +1,18 @@
-//package sba.project.tuvanluatgiaothong.pojo;
-//
-//import jakarta.persistence.*;
-//import lombok.*;
-//import java.time.LocalDateTime;
-//import java.util.List;
-//import java.util.UUID;
-//
-//@Entity
-//@Table(name = "usage_packages")
-//@Getter
-//@Setter
-//@Builder
-//@NoArgsConstructor
-//@AllArgsConstructor
-//public class UsagePackage {
-//
-//    @Id
-//    @Column(name = "usage_package_id")
-//    private UUID usagePackageId;
-//
-//    @Column(name = "name", length = 60)
-//    private String name;
-//
-//    @Column(name = "description", columnDefinition = "text")
-//    private String description;
-//
-//    @Column(name = "price")
-//    private Float price;
-//
-//    @Column(name = "daily_limit")
-//    private Integer dailyLimit;
-//
-//    @Column(name = "days_limit")
-//    private Integer daysLimit;
-//
-//    @Column(name = "is_enable")
-//    private Boolean isEnable;
-//
-//    @Column(name = "created_date")
-//    private LocalDateTime createdDate;
-//
-//    @Column(name = "update_date")
-//    private LocalDateTime updateDate;
-//
-//    @OneToMany(mappedBy = "usagePackage", cascade = CascadeType.ALL)
-//    private List<UserPackage> userPackages;
-//
-//}
-
-
 package sba.project.tuvanluatgiaothong.pojo;
 
 import java.time.Instant;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
+import java.util.List;
 import java.util.UUID;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import sba.project.tuvanluatgiaothong.enums.ModelAI;
+import sba.project.tuvanluatgiaothong.pojo.AIModel;
+
 
 @Data
 @Entity
@@ -88,6 +41,10 @@ public class UsagePackage {
     @Column(name = "days_limit")
     private int daysLimit;
 
+    @Enumerated(EnumType.STRING)
+    @Column(name = "model_type")
+    private ModelAI modelType;
+
     @Column(name = "is_deleted")
     private boolean isDeleted;
 
@@ -96,6 +53,14 @@ public class UsagePackage {
 
     @Column(name = "updated_date")
     private Instant updatedDate;
+
+    @ManyToMany
+    @JoinTable(
+            name = "packages_models",
+            joinColumns = @JoinColumn(name = "package_id", referencedColumnName = "id"),
+            inverseJoinColumns = @JoinColumn(name = "model_id", referencedColumnName = "id")
+    )
+    private List<AIModel> aiModels;
 
     @PrePersist
     public void prePersist() {

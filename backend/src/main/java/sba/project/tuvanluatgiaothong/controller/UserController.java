@@ -1,46 +1,40 @@
-// package sba.project.tuvanluatgiaothong.controller;
+package sba.project.tuvanluatgiaothong.controller;
 
-// import java.util.List;
-// import java.util.UUID;
+import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+import sba.project.tuvanluatgiaothong.dto.request.PasswordChangeRequest;
+import sba.project.tuvanluatgiaothong.dto.request.UpdatingUsernameAndPasswordRequest;
+import sba.project.tuvanluatgiaothong.dto.request.UserInfoRequest;
+import sba.project.tuvanluatgiaothong.dto.response.ApiResponse;
+import sba.project.tuvanluatgiaothong.service.IUserService;
 
-// import org.springframework.beans.factory.annotation.Autowired;
-// import org.springframework.http.ResponseEntity;
-// import org.springframework.security.access.prepost.PreAuthorize;
-// import org.springframework.web.bind.annotation.GetMapping;
-// import org.springframework.web.bind.annotation.PostMapping;
-// import org.springframework.web.bind.annotation.RequestMapping;
-// import org.springframework.web.bind.annotation.RestController;
+@RestController
+@RequestMapping("/api/v1/users")
+@RequiredArgsConstructor
+public class UserController {
 
-// import sba.project.tuvanluatgiaothong.pojo.User;
-// import sba.project.tuvanluatgiaothong.service.UserService;
+    private final IUserService userService;
 
-// @RestController
-// @RequestMapping("/users")
-// public class UserController {
+    @PutMapping("/update/{userId}")
+    public ResponseEntity<ApiResponse<?>> updateUserInfo(
+            @PathVariable("userId") String userId,
+            @RequestBody UserInfoRequest userInfoRequest) {
+        return new ResponseEntity<>(userService.updateInfo(userId, userInfoRequest), HttpStatus.OK);
+    }
 
-//     @Autowired
-//     private UserService userService;
+    @PutMapping("/update/username-password/{userId}")
+    public ResponseEntity<ApiResponse<?>> updateUsernameAndPassword(
+            @PathVariable("userId") String userId,
+            @RequestBody UpdatingUsernameAndPasswordRequest request) {
+        return new ResponseEntity<>(userService.updateUsernameAndPassword(userId, request), HttpStatus.OK);
+    }
 
-//     @GetMapping("/test")
-//     public String test() {
-//         return "User API is working!";
-//     }   
-
-//     @GetMapping("/get-by-id")
-//     public ResponseEntity<User> getUserById(UUID userId) {
-//         User user = userService.getUserById(userId);
-//         return ResponseEntity.ok(user);
-//     }
-
-
-//     @GetMapping("/list-all")
-//     @PreAuthorize("hasAuthority('SCOPE_ADMIN')")
-//     public List<User> getAllUsers() {
-//         return userService.getAllUsers();
-//     }
-
-//     @PostMapping("/is-enable")
-//     public User updateUserIsEnable(UUID userId, Boolean isEnable) {
-//         return userService.updateUserIsEnable(userId, isEnable);
-//     }
-// }
+    @PutMapping("/change-password/{userId}")
+    public ResponseEntity<ApiResponse<?>> changePassword(
+            @PathVariable("userId") String userId,
+            @RequestBody PasswordChangeRequest changePasswordRequest) {
+        return new ResponseEntity<>(userService.changePassword(userId, changePasswordRequest), HttpStatus.OK);
+    }
+}

@@ -1,11 +1,11 @@
+import Env from "./Env";
+
 export const Api = {
     BASE_API: "http://localhost:8080",
 
     Authenticaion: {
         LOGIN: '/api/v1/identity/authenticate',
-        // LOGIN: '/api/v1/login',
         REGISTER: '/api/v1/identity/register-with-verifying',
-        // REGISTER: '/api/v1/register',
         VERIFY_OTP: '/api/v1/identity/verify-otp',
         REFRESH: '/api/v1/identity/refresh',
         USER_INFO: '/api/v1/identity/user'
@@ -13,7 +13,10 @@ export const Api = {
 
     User: {
         GET_ALL: '/api/v1/admin/user-management/users',
-        DISABLE_USER: '/api/v1/admin/user-management/disable/'
+        DISABLE_USER: '/api/v1/admin/user-management/disable/',
+        UPDATE_USER_INFO: '/api/v1/users/update/',
+        UPDATE_USERNAME_PASSWORD: '/api/v1/users/update/username-password/',
+        CHANGE_PASSWORD: '/api/v1/users/change-password/'
     },
 
     Law: {

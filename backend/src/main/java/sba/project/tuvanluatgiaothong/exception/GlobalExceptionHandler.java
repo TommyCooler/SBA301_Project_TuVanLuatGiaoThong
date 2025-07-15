@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.http.HttpStatus;
 import java.time.ZonedDateTime;
+import java.util.Optional;
 
 @RestControllerAdvice
 public class GlobalExceptionHandler {
@@ -45,7 +46,7 @@ public class GlobalExceptionHandler {
         ApiResponse<Object> response = new ApiResponse<>(
                 "not_found",
                 exception.getMessage(),
-                null
+                Optional.empty()
         );
         return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
     }

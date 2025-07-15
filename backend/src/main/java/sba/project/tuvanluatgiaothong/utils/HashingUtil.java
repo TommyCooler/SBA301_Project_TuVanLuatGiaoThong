@@ -33,8 +33,9 @@ public class HashingUtil {
 
         StringBuilder result = new StringBuilder();
         for (long number : numbers) {
-            result.append((char) number);
+            result.append((char) (number & 0xFFFF)); // cast như toUShort   UShort (unsigned 16-bit)
         }
+
         return result.toString();
     }
 }
