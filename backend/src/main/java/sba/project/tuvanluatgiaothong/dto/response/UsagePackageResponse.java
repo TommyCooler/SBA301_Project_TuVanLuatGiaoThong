@@ -1,0 +1,21 @@
+package sba.project.tuvanluatgiaothong.dto.response;
+
+import lombok.Data;
+
+import java.time.Instant;
+import java.util.UUID;
+
+@Data
+public class UsagePackageResponse {
+
+    private UUID id;
+    private String name;
+    private String description;
+    private float price;
+    private int dailyLimit;
+    private int daysLimit;
+    private boolean isDeleted;
+    private String modelType;
+    private Instant createdDate;
+    private Instant updatedDate;
+}

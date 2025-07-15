@@ -1,4 +1,3 @@
-
 const Env = {
     appName: process.env.NEXT_PUBLIC_APP_NAME,
     backendApiGateWayUrl: process.env.NEXT_PUBLIC_BACKEND_API_GATEWAY_URL,

@@ -27,6 +27,7 @@ public class Law {
     
     @Id
     @Column(name = "id")
+    @Builder.Default
     private UUID id = UUID.randomUUID();
 
     @Column(name = "reference_number", length = 255)
