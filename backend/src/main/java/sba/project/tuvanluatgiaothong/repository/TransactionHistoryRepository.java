@@ -9,5 +9,7 @@ import java.util.UUID;
 
 @Repository
 public interface TransactionHistoryRepository extends JpaRepository<TransactionHistory, Long> {
+
      List<TransactionHistory> findByUserId(UUID userId);
+
 }

@@ -1,14 +1,12 @@
 package sba.project.tuvanluatgiaothong.repository;
 
 import org.springframework.stereotype.Repository;
-
 import sba.project.tuvanluatgiaothong.pojo.ChatHistory;
-
 import java.util.List;
 import java.util.UUID;
 
 @Repository
-public interface IChatbotRepository {
+public interface IChatbotRepository  {
 
     public void save(ChatHistory chatHistory);
 

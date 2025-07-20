@@ -148,10 +148,12 @@ import sba.project.tuvanluatgiaothong.dto.request.UsagePackageRequest;
 import sba.project.tuvanluatgiaothong.dto.response.ApiResponse;
 import sba.project.tuvanluatgiaothong.exception.CustomExceptions;
 import sba.project.tuvanluatgiaothong.mapper.UsagePackageMapper;
-import sba.project.tuvanluatgiaothong.repository.ITransactionUsagePackage;
+import sba.project.tuvanluatgiaothong.pojo.AIModel;
+import sba.project.tuvanluatgiaothong.repository.AIModelRepository;
+import sba.project.tuvanluatgiaothong.repository.IUsagePackageTransaction;
 import sba.project.tuvanluatgiaothong.repository.UsagePackageRepository;
 import sba.project.tuvanluatgiaothong.repository.UserPackageRepository;
-import sba.project.tuvanluatgiaothong.utils.HashingUtil;
+import sba.project.tuvanluatgiaothong.utils.IHashingUtil;
 
 import java.util.List;
 import java.util.UUID;
@@ -162,13 +164,15 @@ public class UsagePackageService implements IUsagePackageService {
 
     private final UsagePackageRepository usagePackageRepository;
 
-    private final ITransactionUsagePackage transactionUsagePackage;
+    private final IUsagePackageTransaction transactionUsagePackage;
 
     private final UsagePackageMapper usagePackageMapper;
 
     private final UserPackageRepository userPackageRepository;
 
-    private final HashingUtil hashingUtil;
+    private final AIModelRepository iAIModelRepository;
+
+    private final IHashingUtil hashingUtil;
 
     @Override
     public ApiResponse<UsagePackageResponse> createUsagePackage(UsagePackageRequest usagePackageRequest) {
@@ -192,7 +196,19 @@ public class UsagePackageService implements IUsagePackageService {
         try {
             var usagePackage = this.usagePackageRepository.findById(id)
                     .orElseThrow(() -> new CustomExceptions.ResourceNotFoundException("Cannot found usage package with id: "+ id));
+
+            List<AIModel> aiModels = usagePackageRequest.getAiModels()
+                    .stream().map(aiModelRequest -> this.iAIModelRepository.findById(aiModelRequest.getId())
+                            .orElseThrow(() -> new CustomExceptions.ResourceNotFoundException(
+                                    "Cannot found AI model with id: " + aiModelRequest.getId())))
+                    .toList();
             usagePackage = this.usagePackageMapper.copyDataWithoutId(usagePackageRequest, usagePackage);
+
+            usagePackage.getAiModels().clear();
+            for (AIModel aiModel : aiModels) {
+                usagePackage.getAiModels().add(aiModel);
+            }
+
             var updatedUsagePackage = this.transactionUsagePackage.save(usagePackage);
             return ApiResponse.<UsagePackageResponse>builder()
                     .status("success")
@@ -201,6 +217,7 @@ public class UsagePackageService implements IUsagePackageService {
                     .build();
         }
         catch (Exception exception) {
+            System.out.println("Exception occurred while updating usage package: " + exception.getMessage());
             throw new CustomExceptions.InternalServerException(
                     "Update usage package with id "+ id +" fail, message: " + exception.getMessage()
             );
@@ -241,6 +258,20 @@ public class UsagePackageService implements IUsagePackageService {
                     "Update usage package with id "+ id +" fail, message: " + exception.getMessage()
             );
         }
+    }
+
+    @Override
+    public ApiResponse<UsagePackageResponse> getUsagePackageByUserId(String userId) {
+        UUID decodedUserId = UUID.fromString(this.hashingUtil.decode(userId));
+        var currentUserPackage = this.userPackageRepository.findByUserIdAndIsEnable(decodedUserId, true)
+                .orElseThrow(() -> new CustomExceptions.ResourceNotFoundException("Cannot found user package with user id: " + decodedUserId));
+        var usagePackage = this.usagePackageRepository.findById(currentUserPackage.getPackageId())
+                .orElseThrow(() -> new CustomExceptions.ResourceNotFoundException("Cannot found usage package with id: " + currentUserPackage.getPackageId()));
+        return ApiResponse.<UsagePackageResponse>builder()
+                .status("success")
+                .message("Get usage package by user id successfully!")
+                .dataResponse(this.usagePackageMapper.toResponse(usagePackage))
+                .build();
     }
 
     @Override

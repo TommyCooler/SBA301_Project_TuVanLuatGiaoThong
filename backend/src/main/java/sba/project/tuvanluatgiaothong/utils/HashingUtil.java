@@ -8,7 +8,7 @@ import org.hashids.Hashids;
 
 @Component("hashingUtil_ChatbotService")
 @PropertySource("classpath:security.properties")
-public class HashingUtil {
+public class HashingUtil implements IHashingUtil{
 
     @Value("${hashing.secret-key}")
     private final String hashingKey;

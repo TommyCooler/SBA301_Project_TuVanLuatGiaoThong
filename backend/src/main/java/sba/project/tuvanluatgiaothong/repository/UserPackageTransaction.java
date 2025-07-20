@@ -11,7 +11,7 @@ import java.util.UUID;
 @Service
 @Transactional
 @RequiredArgsConstructor
-public class TransactionUserPackage implements ITransactionUserPackage{
+public class UserPackageTransaction implements IUserPackageTransaction {
 
     private final UserPackageRepository userPackageRepository;
 

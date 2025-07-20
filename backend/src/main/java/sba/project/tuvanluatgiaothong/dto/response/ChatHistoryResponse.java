@@ -13,6 +13,10 @@ public class ChatHistoryResponse {
 
     private UUID id;
 
+    private String sessionId;
+
+    private String modelAlias;
+
     private Instant createdDate;
 
     private String chatTitle;

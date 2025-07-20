@@ -1,9 +1,8 @@
 package sba.project.tuvanluatgiaothong.repository;
 
-
 import sba.project.tuvanluatgiaothong.pojo.LawType;
 
-public interface ITransactionLawType {
+public interface ILawTypeTransaction {
 
     LawType save(LawType lawType);
 

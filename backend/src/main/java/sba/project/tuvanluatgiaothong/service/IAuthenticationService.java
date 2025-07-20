@@ -13,19 +13,19 @@ import sba.project.tuvanluatgiaothong.dto.response.AuthenticationResponse;
 
 public interface IAuthenticationService {
 
-    ApiResponse<?> registerUserWithVerifyingEmail(RegisterUserRequest registerUserRequest);
+    ApiResponse<Object> registerUserWithVerifyingEmail(RegisterUserRequest registerUserRequest);
 
-    ApiResponse<?> verifyOtp(String email, String sixDigitsOtp);
+    ApiResponse<Object> verifyOtp(String email, String sixDigitsOtp);
 
-    ApiResponse<?> registerUser(RegisterRequest registerRequest);
+    ApiResponse<Object> registerUser(RegisterRequest registerRequest);
 
-    ApiResponse<?> authenticateUser(AuthenticationUserRequest authUserRequest);
+    ApiResponse<Object> authenticateUser(AuthenticationUserRequest authUserRequest);
 
-    ApiResponse<?> refreshToken(HttpServletRequest request, HttpServletResponse response);
+    ApiResponse<Object> refreshToken(HttpServletRequest request, HttpServletResponse response);
 
-    ApiResponse<?> getUserInfo(HttpServletRequest request, HttpServletResponse response);
+    ApiResponse<Object> getUserInfo(HttpServletRequest request, HttpServletResponse response);
 
-    ApiResponse<List<String>> authenticateToken(String token);
+    ApiResponse<Object> authenticateToken(String token);
 
     AuthenticationResponse generateToken(String email);
 }

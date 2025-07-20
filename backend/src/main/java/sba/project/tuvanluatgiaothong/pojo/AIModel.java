@@ -30,6 +30,9 @@ public class AIModel {
     @Column(name = "provider")
     private String provider;
 
+    @Column(name = "alias")
+    private String alias;
+
     @Column(name = "description", columnDefinition = "TEXT")
     private String description;
 
@@ -42,7 +45,7 @@ public class AIModel {
     @Column(name = "updated_date")
     private Instant updatedDate;
 
-    @ManyToMany(mappedBy = "aiModels")
+    @ManyToMany(mappedBy = "aiModels", fetch =  FetchType.LAZY)
     private List<UsagePackage> usagePackages;
 
     @PrePersist

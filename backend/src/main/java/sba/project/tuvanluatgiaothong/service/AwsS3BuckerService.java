@@ -34,8 +34,8 @@ public class AwsS3BuckerService implements IAwsS3BucketService {
     @Value("${aws.s3.region}")
     private String region;
 
-    private S3Client s3Client;
-    private S3Presigner s3Presigner;
+    private final S3Client s3Client;
+    private final S3Presigner s3Presigner;
 
     @Override
     public ApiResponse<?> createFolder(String folderName) {

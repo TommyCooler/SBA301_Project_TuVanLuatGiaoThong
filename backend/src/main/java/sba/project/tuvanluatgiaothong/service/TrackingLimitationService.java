@@ -109,7 +109,7 @@ import java.util.Map;
 
 @Service
 @RequiredArgsConstructor
-public class TrackingLimitationService {
+public class TrackingLimitationService implements ITrackingLimitationService {
 
     private static final int DEFAULT_LIMITATION_DAILY = 5;
     private static final String USER_USAGE_KEY = "userUsage";

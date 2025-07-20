@@ -91,6 +91,6 @@ public class RouterValidator {
      */
     public static final String[] ADMIN_ENDPOINTS = {
             "/api/v1/admin/**",
-            "/api/v1/*/admin/**"
+            "/api/v1/**/admin/**"
     };
 }

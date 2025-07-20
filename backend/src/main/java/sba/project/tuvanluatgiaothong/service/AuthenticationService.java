@@ -10,7 +10,7 @@ import sba.project.tuvanluatgiaothong.dto.response.ApiResponse;
 import sba.project.tuvanluatgiaothong.dto.response.AuthenticationResponse;
 import sba.project.tuvanluatgiaothong.mapper.UserMapper;
 import sba.project.tuvanluatgiaothong.pojo.User;
-import sba.project.tuvanluatgiaothong.repository.TokenTransaction;
+import sba.project.tuvanluatgiaothong.repository.ITokenTransaction;
 import sba.project.tuvanluatgiaothong.repository.UserRepository;
 
 import org.slf4j.Logger;
@@ -22,9 +22,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.time.Duration;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 import java.util.concurrent.CompletableFuture;
 
 @Service
@@ -36,160 +34,145 @@ public class AuthenticationService implements IAuthenticationService {
     private final PasswordEncoder passwordEncoder;
     private final UserMapper userMapper;
     private final AuthenticationManager authenticationManager;
-    private final TokenTransaction tokenTransaction;
-    private final OtpGeneratorUtil otpGeneratorUtil;
+    private final ITokenTransaction tokenTransaction;
+    private final OtpGeneratorUtil optGeneratorUtil;
     private final EmailService emailService;
     private final RedisService redisService;
 
     private static final Logger logger = LoggerFactory.getLogger(AuthenticationService.class);
 
-    private static final String AUTH_HEADER = "Authorization";
-    private static final String BEARER_PREFIX = "Bearer ";
-    private static final long OTP_DURATION_MIN = 5;
+    public static final String AUTHENTICATION_HEADER = "Authorization";
+    public static final String AUTHENTICATION_HEADER_BEARER = "Bearer ";
+    public static final long OTP_DURATION_MIN = 5L;
 
     @Override
-    public ApiResponse<?> registerUserWithVerifyingEmail(RegisterUserRequest request) {
-        if (userRepository.findByEmail(request.getEmail()).isPresent()) {
-            return new ApiResponse<>("fail", "Email đã được đăng ký!", Optional.empty());
+    public ApiResponse<Object> registerUserWithVerifyingEmail(RegisterUserRequest req) {
+        boolean emailExists = userRepository.findByEmail(req.getEmail()).isPresent();
+        if (emailExists) {
+            return new ApiResponse<>("fail", "Email đã được đăng ký!", Optional.ofNullable(null));
         }
 
-        String otp = otpGeneratorUtil.generateOtp();
+        String otp = optGeneratorUtil.generateOtp();
 
+        // Send email asynchronously
         CompletableFuture.runAsync(() -> {
             try {
-                emailService.sendOtpEmail(request.getEmail(), otp);
+                emailService.sendOtpEmail(req.getEmail(), otp);
             } catch (Exception e) {
-                logger.error("Failed to send OTP email to: " + request.getEmail(), e);
+                logger.error("Failed to send OTP email to: " + req.getEmail(), e);
             }
         });
 
-        try {
-            // ✅ Fix: Sử dụng setJsonValue thay vì setValue
-            Map<String, Object> cacheData = Map.of(
-                    "registerData", request,
-                    "otp", otp,
-                    "createdAt", System.currentTimeMillis()
-            );
+        // Cache registration data + OTP in Redis
+        Map<String, Object> cacheData = new HashMap<>();
+        cacheData.put("registerData", req);
+        cacheData.put("otp", otp);
+        cacheData.put("createdAt", System.currentTimeMillis());
 
-            redisService.setJsonValue("registration:" + request.getEmail(), cacheData, Duration.ofMinutes(OTP_DURATION_MIN));
-        } catch (Exception e) {
-            logger.error("Failed to cache registration data", e);
-            return new ApiResponse<>("fail", "Lỗi hệ thống. Vui lòng thử lại.", Optional.empty());
-        }
+        redisService.setValue(
+                "registration:" + req.getEmail(),
+                cacheData,
+                Duration.ofMinutes(OTP_DURATION_MIN)
+        );
 
-        return new ApiResponse<>("success", "OTP đã được gửi đến email của bạn. Vui lòng kiểm tra và xác thực trong vòng 5 phút.",
-                Map.of("email", request.getEmail()));
+        return new ApiResponse<>(
+                "success",
+                "OTP đã được gửi đến email của bạn. Vui lòng kiểm tra và xác thực trong vòng 5 phút.",
+                Collections.singletonMap("email", req.getEmail())
+        );
     }
 
     @Override
-    @SuppressWarnings("unchecked")
-    public ApiResponse<?> verifyOtp(String email, String otp) {
-        String cacheKey = "registration:" + email;
-        
-        try {
-            // ✅ Fix: Sử dụng getJsonValue với proper type
-            Map<String, Object> cachedData = redisService.getJsonValue(cacheKey, Map.class);
-            if (cachedData == null) {
-                return new ApiResponse<>("fail", "OTP đã hết hạn hoặc không tồn tại. Vui lòng đăng ký lại.", Optional.empty());
-            }
+    public ApiResponse<Object> verifyOtp(String email, String providedOtp) {
+        String key = "registration:" + email;
+        @SuppressWarnings("unchecked")
+        Map<String, Object> cached = (Map<String, Object>) redisService.getValueByKey(key);
 
-            String storedOtp = (String) cachedData.get("otp");
-            
-            // ✅ Fix: Proper deserialization của RegisterUserRequest
-            Map<String, Object> registerDataMap = (Map<String, Object>) cachedData.get("registerData");
-            RegisterUserRequest request = mapToRegisterUserRequest(registerDataMap);
-            
-            // ✅ Fix: Handle createdAt as Number (có thể là Integer hoặc Long)
-            Number createdAtNumber = (Number) cachedData.get("createdAt");
-            Long createdAt = createdAtNumber.longValue();
-
-            if (storedOtp == null || request == null) {
-                redisService.deleteKey(cacheKey);
-                return new ApiResponse<>("fail", "Dữ liệu OTP không hợp lệ. Vui lòng đăng ký lại.", Optional.empty());
-            }
-
-            long otpAge = (System.currentTimeMillis() - createdAt) / 1000 / 60;
-            if (otpAge > OTP_DURATION_MIN) {
-                redisService.deleteKey(cacheKey);
-                return new ApiResponse<>("fail", "OTP đã hết hạn. Vui lòng đăng ký lại.", Optional.empty());
-            }
-
-            if (storedOtp.equals(otp)) {
-                User user = userMapper.toEntity(request);
-                user.setPasswordAuth(passwordEncoder.encode(request.getPassword()));
-                user.setIsEnable(true);
-                userRepository.save(user);
-
-                redisService.deleteKey(cacheKey); // ✅ Clean up cache
-
-                return new ApiResponse<>("success", "Đăng ký thành công!",
-                        new AuthenticationResponse(jwtService.generateToken(user), jwtService.generateRefreshToken(user)));
-            }
-
-            return new ApiResponse<>("fail", "Mã OTP không hợp lệ!", Optional.empty());
-            
-        } catch (Exception e) {
-            logger.error("Failed to process OTP verification", e);
-            redisService.deleteKey(cacheKey);
-            return new ApiResponse<>("fail", "Lỗi hệ thống. Vui lòng thử lại.", Optional.empty());
-        }
-    }
-
-    // ✅ Helper method để convert Map to RegisterUserRequest
-    private RegisterUserRequest mapToRegisterUserRequest(Map<String, Object> map) {
-        if (map == null) return null;
-        
-        return RegisterUserRequest.builder()
-                .username((String) map.get("username"))
-                .email((String) map.get("email"))
-                .password((String) map.get("password"))
-                .fullname((String) map.get("fullname"))
-                .build();
-    }
-
-    @Override
-    public ApiResponse<?> registerUser(RegisterRequest request) {
-        if (userRepository.findByUsernameAuth(request.getUsername()).isPresent()) {
-            throw new RuntimeException("User does exist! Please choose another username.");
+        if (cached == null) {
+            return new ApiResponse<>("fail", "OTP đã hết hạn hoặc không tồn tại. Vui lòng đăng ký lại.", Optional.ofNullable(null));
         }
 
-        User user = userMapper.toEntity(request);
-        user.setPasswordAuth(passwordEncoder.encode(request.getPassword()));
+        String storedOtp = (String) cached.get("otp");
+        RegisterUserRequest req = (RegisterUserRequest) cached.get("registerData");
+        Long createdAt = (Long) cached.get("createdAt");
+
+        if (storedOtp == null || req == null) {
+            redisService.deleteKey(key);
+            return new ApiResponse<>("fail", "Dữ liệu OTP không hợp lệ. Vui lòng đăng ký lại.", Optional.ofNullable(null));
+        }
+
+        long ageMinutes = (System.currentTimeMillis() - createdAt) / 1000 / 60;
+        if (ageMinutes > OTP_DURATION_MIN) {
+            redisService.deleteKey(key);
+            return new ApiResponse<>("fail", "OTP đã hết hạn. Vui lòng đăng ký lại.", Optional.ofNullable(null));
+        }
+
+        if (!storedOtp.equals(providedOtp)) {
+            return new ApiResponse<>("fail", "Mã OTP không hợp lệ!", Optional.ofNullable(null));
+        }
+
+        // OTP valid → create user
+        User user = userMapper.toEntity(req);
+        user.setPasswordAuth(passwordEncoder.encode(req.getPassword()));
         user.setIsEnable(true);
         userRepository.save(user);
 
-        return new ApiResponse<>("success", "Đăng ký thành công!",
-                new AuthenticationResponse(jwtService.generateToken(user), jwtService.generateRefreshToken(user)));
+        AuthenticationResponse authResp = new AuthenticationResponse(
+                jwtService.generateToken(user),
+                jwtService.generateRefreshToken(user)
+        );
+        return new ApiResponse<>("success", "Đăng ký thành công!", authResp);
     }
 
     @Override
-    public ApiResponse<?> authenticateUser(AuthenticationUserRequest request) {
+    public ApiResponse<Object> registerUser(RegisterRequest req) {
+        if (isExistUsername(req.getUsername())) {
+            throw new RuntimeException("User does exist! Please choose another username.");
+        }
+
+        User user = userMapper.toEntity(req);
+        user.setPasswordAuth(passwordEncoder.encode(req.getPassword()));
+        user.setIsEnable(true);
+        userRepository.save(user);
+
+        AuthenticationResponse authResp = new AuthenticationResponse(
+                jwtService.generateToken(user),
+                jwtService.generateRefreshToken(user)
+        );
+        return new ApiResponse<>("success", "Đăng ký thành công!", authResp);
+    }
+
+    @Override
+    public ApiResponse<Object> authenticateUser(AuthenticationUserRequest req) {
         try {
             authenticationManager.authenticate(
-                    new UsernamePasswordAuthenticationToken(request.getUsername(), request.getPassword()));
+                    new UsernamePasswordAuthenticationToken(req.getUsername(), req.getPassword())
+            );
         } catch (AuthenticationException e) {
             throw new RuntimeException("Tên đăng nhập hoặc mật khẩu không đúng!");
         }
 
-        User user = getUser(request.getUsername());
-        String jwtToken = jwtService.generateToken(user);
+        User user = getUser(req.getUsername());
+        String accessToken = jwtService.generateToken(user);
         String refreshToken = jwtService.generateRefreshToken(user);
-        tokenTransaction.revokeAllOldUserToken(user);
-        tokenTransaction.saveToken(user, jwtToken);
 
-        return new ApiResponse<>("success", "Sign in successfully!",
-                new AuthenticationResponse(jwtToken, refreshToken));
+        tokenTransaction.revokeAllOldUserToken(user);
+        tokenTransaction.saveToken(user, accessToken);
+
+        AuthenticationResponse authResp = new AuthenticationResponse(accessToken, refreshToken);
+        return new ApiResponse<>("success", "Sign in successfully!", authResp);
     }
 
     @Override
-    public ApiResponse<?> refreshToken(HttpServletRequest request, HttpServletResponse response) {
-        String authHeader = request.getHeader(AUTH_HEADER);
-        if (authHeader == null || !authHeader.startsWith(BEARER_PREFIX)) {
+    public ApiResponse<Object> refreshToken(HttpServletRequest request, HttpServletResponse response) {
+        String header = request.getHeader(AUTHENTICATION_HEADER);
+        if (header == null || !header.startsWith(AUTHENTICATION_HEADER_BEARER)) {
             return unauthorizedResponse();
         }
 
-        String refreshToken = authHeader.substring(BEARER_PREFIX.length());
-        User user = getUser(jwtService.extractUsername(refreshToken));
+        String refreshToken = header.substring(AUTHENTICATION_HEADER_BEARER.length());
+        String username = jwtService.extractUsername(refreshToken);
+        User user = getUser(username);
 
         if (!jwtService.isValidToken(refreshToken, user)) {
             return unauthorizedResponse();
@@ -199,51 +182,60 @@ public class AuthenticationService implements IAuthenticationService {
         tokenTransaction.revokeAllOldUserToken(user);
         tokenTransaction.saveToken(user, newAccessToken);
 
-        return new ApiResponse<>("success", "Refresh token successfully!",
-                new AuthenticationResponse(newAccessToken, refreshToken));
+        AuthenticationResponse authResp = new AuthenticationResponse(newAccessToken, refreshToken);
+        return new ApiResponse<>("success", "Refresh token successfully!", authResp);
+    }
+
+    private ApiResponse<Object> unauthorizedResponse() {
+        return new ApiResponse<>(
+                "unauthorized",
+                "Login session is expired!",
+                new AuthenticationResponse("", "")
+        );
     }
 
     @Override
-    public ApiResponse<?> getUserInfo(HttpServletRequest request, HttpServletResponse response) {
-        String authHeader = request.getHeader(AUTH_HEADER);
-        if (authHeader == null || !authHeader.startsWith(BEARER_PREFIX)) {
-            return new ApiResponse<>("unauthorized", "Token is invalid!", Optional.empty());
+    public ApiResponse<Object> getUserInfo(HttpServletRequest request, HttpServletResponse response) {
+        String header = request.getHeader(AUTHENTICATION_HEADER);
+        if (header == null || !header.startsWith(AUTHENTICATION_HEADER_BEARER)) {
+            return new ApiResponse<>("unauthorized", "Token is invalid!", Optional.ofNullable(null));
         }
 
-        String jwt = authHeader.substring(BEARER_PREFIX.length());
+        String token = header.substring(AUTHENTICATION_HEADER_BEARER.length());
+        String username = jwtService.extractUsername(token);
+        User user = getUser(username);
+
         return new ApiResponse<>("success", "Get user info successfully!",
-                userMapper.toResponse(getUser(jwtService.extractUsername(jwt))));
+                userMapper.toResponse(user)
+        );
     }
 
     @Override
-    public ApiResponse<List<String>> authenticateToken(String token) {
-        User user = getUser(jwtService.extractUsername(token));
-        List<String> roles = jwtService.extractRoles(token);
-
+    public ApiResponse<Object> authenticateToken(String token) {
+        String username = jwtService.extractUsername(token);
+        User user = getUser(username);
         if (!jwtService.isValidToken(token, user)) {
-            return new ApiResponse<>("invalid", "Token is invalid!", List.of());
+            return new ApiResponse<>("invalid", "Token is invalid!", Optional.empty());
         }
-
-        return new ApiResponse<>("valid", "Token is valid!", roles);
+        return new ApiResponse<>("valid", "Token is valid!", jwtService.extractRoles(token));
     }
 
     @Override
     public AuthenticationResponse generateToken(String email) {
         User user = userRepository.findByEmail(email).orElseThrow();
-        return new AuthenticationResponse(jwtService.generateToken(user), jwtService.generateRefreshToken(user));
+        return new AuthenticationResponse(
+                jwtService.generateToken(user),
+                jwtService.generateRefreshToken(user)
+        );
     }
 
-    private ApiResponse<?> unauthorizedResponse() {
-        return new ApiResponse<>("unauthorized", "Login session is expired!", new AuthenticationResponse("", ""));
+    private boolean isExistUsername(String username) {
+        return userRepository.findByUsernameAuth(username).isPresent();
     }
 
     private User getUser(String username) {
-        return userRepository.findByUsernameAuth(username).orElseThrow();
+        return userRepository.findByUsernameAuth(username)
+                .orElseThrow(() -> new RuntimeException("User not found: " + username));
     }
-
-//    private User getUser(String username) {
-//        User user = userRepository.findByUsernameAuth(username)
-//                .orElseThrow(() -> new RuntimeException("User not found with username: " + username));
-//        return user;
-//    }
 }
+

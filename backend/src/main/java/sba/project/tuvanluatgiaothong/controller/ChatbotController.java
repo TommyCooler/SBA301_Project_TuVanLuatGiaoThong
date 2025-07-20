@@ -5,12 +5,10 @@ import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import sba.project.tuvanluatgiaothong.dto.request.ChatRequest;
-import sba.project.tuvanluatgiaothong.dto.request.RequestPDF;
 import sba.project.tuvanluatgiaothong.dto.request.UserPromptRequest;
 import sba.project.tuvanluatgiaothong.dto.response.ApiResponse;
 import sba.project.tuvanluatgiaothong.service.IChatbotService;
-import sba.project.tuvanluatgiaothong.service.TrackingLimitationService;
+import sba.project.tuvanluatgiaothong.service.ITrackingLimitationService;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -22,9 +20,9 @@ import java.util.concurrent.TimeUnit;
 @RequestMapping("/api/v1/chatbot")
 public class ChatbotController {
 
-    private final IChatbotService chatbotService;
+    private final IChatbotService iChatbotService;
 
-    private final TrackingLimitationService trackingLimitationService;
+    private final ITrackingLimitationService iTrackingLimitationService;
 
     private final RedisTemplate<String, String> redisTemplate;
 
@@ -37,24 +35,24 @@ public class ChatbotController {
     public ResponseEntity<ApiResponse<?>> renameChatTitle(
             @RequestParam("chatId") String chatId,
             @RequestParam("newTitle") String newTitle) {
-        return new ResponseEntity<>(this.chatbotService.renameChatTitle(chatId, newTitle), HttpStatus.OK);
+        return new ResponseEntity<>(this.iChatbotService.renameChatTitle(chatId, newTitle), HttpStatus.OK);
     }
 
     @DeleteMapping("/delete-history/{chatId}")
     public ResponseEntity<ApiResponse<?>> deleteChatHistory(@PathVariable("chatId") UUID chatId) {
-        return new ResponseEntity<>(this.chatbotService.deleteChatHistory(chatId), HttpStatus.OK);
+        return new ResponseEntity<>(this.iChatbotService.deleteChatHistory(chatId), HttpStatus.OK);
     }
 
     @PostMapping("/authenticated-user/generate")
     public ResponseEntity<ApiResponse<?>> generateWithAuthenticatedUser(
             @RequestBody UserPromptRequest userPromptRequest) {
-        if (this.trackingLimitationService.canUserAsk(
+        if (this.iTrackingLimitationService.canUserAsk(
                 userPromptRequest.getUserId())) {
             return ResponseEntity.ok(
                     ApiResponse.builder()
                             .status("success")
                             .message("Content generated successfully for authenticated user")
-                            .dataResponse(chatbotService.generateWithAuthenticatedUser(userPromptRequest))
+                            .dataResponse(iChatbotService.generateWithAuthenticatedUser(userPromptRequest))
                             .build());
         } else {
             return ResponseEntity.ok(
@@ -72,7 +70,7 @@ public class ChatbotController {
                 ApiResponse.builder()
                         .status("success")
                         .message("Content generated successfully for authenticated user")
-                        .dataResponse(chatbotService.getAllChatHistoriesByUserId(userId))
+                        .dataResponse(iChatbotService.getAllChatHistoriesByUserId(userId))
                         .build());
     }
 
@@ -91,36 +89,4 @@ public class ChatbotController {
         return ResponseEntity.ok(response);
     }
 
-    @PostMapping("/generate-from-pdf")
-    public ResponseEntity<ApiResponse<Object>> generateContentFromPdf(@RequestBody RequestPDF request)
-            throws Exception {
-        System.out.println();
-        return ResponseEntity.ok(
-                ApiResponse.builder()
-                        .status("success")
-                        .message("Content generated from PDF successfully")
-                        .dataResponse(chatbotService.generateContentFromPDF(request.getUrl(), request.getPrompt()))
-                        .build());
-    }
-
-    @PostMapping("/generate-from-pdf-multiparth")
-    public ResponseEntity<ApiResponse<Object>> generateContentFromPdf(@RequestBody ChatRequest request)
-            throws Exception {
-        return ResponseEntity.ok(
-                ApiResponse.builder()
-                        .status("success")
-                        .message("Content generated from PDF successfully")
-                        .dataResponse(chatbotService.generateContentFromPDF(request.getPdfFile(), request.getPrompt()))
-                        .build());
-    }
-
-    @PostMapping("/generate")
-    public ResponseEntity<ApiResponse<Object>> generate(@RequestBody String prompt) {
-        return ResponseEntity.ok(
-                ApiResponse.builder()
-                        .status("success")
-                        .message("Content generated successfully")
-                        .dataResponse(chatbotService.generateContent(prompt))
-                        .build());
-    }
 }

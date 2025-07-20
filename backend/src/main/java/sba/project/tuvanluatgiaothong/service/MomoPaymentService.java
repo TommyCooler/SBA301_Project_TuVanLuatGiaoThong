@@ -11,7 +11,7 @@
 // import sba.project.tuvanluatgiaothong.pojo.TransactionHistory;
 // import sba.project.tuvanluatgiaothong.pojo.UserPackage;
 // import sba.project.tuvanluatgiaothong.repository.IMomoPaymentService;
-// import sba.project.tuvanluatgiaothong.repository.ITransactionUserPackage;
+// import sba.project.tuvanluatgiaothong.repository.IUserPackageTransaction;
 // import sba.project.tuvanluatgiaothong.repository.TransactionHistoryTransaction;
 // import sba.project.tuvanluatgiaothong.repository.UsagePackageRepository;
 // import sba.project.tuvanluatgiaothong.repository.UserPackageRepository;
@@ -49,7 +49,7 @@
 
 //     private final RedisTemplate<String, Object> redisTemplate;
 
-//     private final ITransactionUserPackage transactionUserPackage;
+//     private final IUserPackageTransaction transactionUserPackage;
 
 //     private final UserPackageRepository userPackageRepository;
 
@@ -209,11 +209,7 @@ import sba.project.tuvanluatgiaothong.exception.CustomExceptions;
 import sba.project.tuvanluatgiaothong.mapper.TransactionHistoryMapper;
 import sba.project.tuvanluatgiaothong.pojo.TransactionHistory;
 import sba.project.tuvanluatgiaothong.pojo.UserPackage;
-import sba.project.tuvanluatgiaothong.repository.IMomoPaymentService;
-import sba.project.tuvanluatgiaothong.repository.ITransactionUserPackage;
-import sba.project.tuvanluatgiaothong.repository.TransactionHistoryTransaction;
-import sba.project.tuvanluatgiaothong.repository.UsagePackageRepository;
-import sba.project.tuvanluatgiaothong.repository.UserPackageRepository;
+import sba.project.tuvanluatgiaothong.repository.*;
 import sba.project.tuvanluatgiaothong.utils.HashingUtil;
 
 import org.springframework.beans.factory.annotation.Value;
@@ -225,7 +221,6 @@ import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
 import java.math.BigDecimal;
 import java.time.Instant;
-import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -242,13 +237,13 @@ public class MomoPaymentService implements IMomoPaymentService {
     @Value("${momo.redirect-url}") private String redirectUrl;
     @Value("${momo.ipn-url}") private String ipnUrl;
 
-    private final TransactionHistoryTransaction transactionHistoryTransaction;
+    private final HistoryTransactionTransaction historyTransactionTransaction;
 
     private final HashingUtil hashingUtil;
 
     private final RedisTemplate<String, Object> redisTemplate;
 
-    private final ITransactionUserPackage transactionUserPackage;
+    private final IUserPackageTransaction transactionUserPackage;
 
     private final UserPackageRepository userPackageRepository;
 
@@ -347,7 +342,7 @@ public class MomoPaymentService implements IMomoPaymentService {
             dto.setMessage(payload.get("message"));
             dto.setPaidAt(Instant.now());
             dto.setUserId(UUID.fromString(payload.get("extraData")));
-            TransactionHistory savedTransaction = transactionHistoryTransaction.save(transactionHistoryMapper.toEntity(dto));
+            TransactionHistory savedTransaction = historyTransactionTransaction.save(transactionHistoryMapper.toEntity(dto));
 
             // Disable old user package if exists
             this.transactionUserPackage.disableAllOldPackageOfUser(savedTransaction.getUserId());

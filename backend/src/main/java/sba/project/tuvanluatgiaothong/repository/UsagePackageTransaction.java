@@ -10,7 +10,7 @@ import java.util.UUID;
 @Repository
 @Transactional
 @RequiredArgsConstructor
-public class TransactionUsagePackage implements ITransactionUsagePackage {
+public class UsagePackageTransaction implements IUsagePackageTransaction {
 
     private final UsagePackageRepository usagePackageRepository;
 

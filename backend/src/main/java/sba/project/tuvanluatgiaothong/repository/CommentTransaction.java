@@ -2,16 +2,13 @@ package sba.project.tuvanluatgiaothong.repository;
 
 import jakarta.persistence.EntityNotFoundException;
 import sba.project.tuvanluatgiaothong.pojo.Comment;
-
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-
 import java.util.UUID;
 
 @Service
 @Transactional
-public class CommentTransaction implements ITransactionComment {
+public class CommentTransaction implements ICommentTransaction {
     private final CommentRepository commentRepository;
     public CommentTransaction(CommentRepository commentRepository) {
         this.commentRepository = commentRepository;
