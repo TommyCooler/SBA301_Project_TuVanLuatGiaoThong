@@ -4,76 +4,39 @@ import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.List;
 import java.util.Map;
+import java.util.Random;
 import java.util.UUID;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
-import org.springframework.ai.chat.messages.UserMessage;
-import org.springframework.ai.chat.prompt.Prompt;
-import org.springframework.ai.content.Media;
-import org.springframework.ai.vertexai.gemini.VertexAiGeminiChatModel;
-import org.springframework.core.io.InputStreamResource;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
-import org.springframework.util.MimeType;
-import org.springframework.web.client.RestTemplate;
-import org.springframework.web.multipart.MultipartFile;
-import sba.project.tuvanluatgiaothong.config.ChatbotConfiguration;
-import sba.project.tuvanluatgiaothong.dto.request.ChatRequest;
 import sba.project.tuvanluatgiaothong.dto.request.UserPromptRequest;
 import sba.project.tuvanluatgiaothong.dto.response.ApiResponse;
 import sba.project.tuvanluatgiaothong.dto.response.ChatHistoryResponse;
 import sba.project.tuvanluatgiaothong.dto.response.GeminiTrafficResponse;
-import sba.project.tuvanluatgiaothong.dto.response.ResponseAi;
 import sba.project.tuvanluatgiaothong.exception.CustomExceptions;
 import sba.project.tuvanluatgiaothong.mapper.ChatHistoryMapper;
 import sba.project.tuvanluatgiaothong.pojo.ChatHistory;
 import sba.project.tuvanluatgiaothong.pojo.ChatItem;
 import sba.project.tuvanluatgiaothong.repository.IChatbotRepository;
-import sba.project.tuvanluatgiaothong.service.IChatbotService;
-import sba.project.tuvanluatgiaothong.thridparty.GeminiApi;
-import sba.project.tuvanluatgiaothong.utils.HashingUtil;
+import sba.project.tuvanluatgiaothong.thridparty.AIModelAlias;
+import sba.project.tuvanluatgiaothong.thridparty.IGeminiApi;
+import sba.project.tuvanluatgiaothong.thridparty.INenApi;
+import sba.project.tuvanluatgiaothong.utils.IHashingUtil;
 
 
 @Service
 @RequiredArgsConstructor
 public class ChatbotService implements IChatbotService {
 
-    private final ChatbotConfiguration config;
-
-    private final VertexAiGeminiChatModel chatModel;
-
     private final IChatbotRepository chatbotRepository;
 
-    private final GeminiApi geminiApi;
+    private final IGeminiApi geminiApi;
+
+    private final INenApi nenApi;
 
     private final ChatHistoryMapper chatHistoryMapper;
 
-    private final HashingUtil hashingUtil;
-
-    @Override
-    public final String generateContent(String prompt) {
-        RestTemplate restTemplate = new RestTemplate();
-        String endpoint = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key="
-                + config.getApiKey();
-        HttpHeaders headers = new HttpHeaders();
-        headers.setContentType(MediaType.APPLICATION_JSON);
-
-        // Construct request body - tạo cấu trúc body
-        Map<String, Object> content = Map.of("parts", List.of(Map.of("text", prompt)));
-        Map<String, Object> body = Map.of("contents", List.of(content));
-
-        // Tạo đối tượng HttpEntity để chứa body và headers
-        HttpEntity<Map<String, Object>> request = new HttpEntity<>(body, headers);
-
-        // Đóng gói lại và gửi đi - sử dụng RestTemplate để gửi yêu cầu POST
-        ResponseEntity<String> response = restTemplate.postForEntity(endpoint, request, String.class);
-
-        return response.getBody();
-
-    }
+    private final IHashingUtil hashingUtil;
 
     @Override
     public ApiResponse<Map<String, String>> deleteChatHistory(UUID chatId) {
@@ -116,13 +79,90 @@ public class ChatbotService implements IChatbotService {
 
     @Override
     public ChatHistoryResponse generateWithAuthenticatedUser(UserPromptRequest userPromptRequest) {
-//                var generatedContent = this.g eminiApi.getTextContentOnly(userPromptRequest.getPrompt());
+        if (userPromptRequest.getModelAlias().equals(AIModelAlias.GEMINI_2_FLASH.alias) ||
+                userPromptRequest.getModelAlias().equals(AIModelAlias.GEMINI_2_5_FLASH.alias) ||
+                userPromptRequest.getModelAlias().equals(AIModelAlias.GEMINI_2_5_PRO.alias)
+        ) {
+            return this.generateFromGemini(userPromptRequest);
+        }
+        else if (userPromptRequest.getModelAlias().equals(AIModelAlias.N8N_AGENT.alias)) {
+            return this.generateWithN8NAgent(userPromptRequest);
+        }
+        else {
+            throw new CustomExceptions.InternalServerException(
+                    "Invalid model alias: " + userPromptRequest.getModelAlias()
+            );
+        }
+    }
+
+    private ChatHistoryResponse generateWithN8NAgent(UserPromptRequest userPromptRequest) {
+        ChatHistory savedChatHistory = null;
+        var zoneId = ZoneId.of("Asia/Ho_Chi_Minh");
+
+        if (userPromptRequest.getChatId() == null || userPromptRequest.getChatId().toString().isEmpty()) {
+            String newSessionId = this.generateRandomString(32);
+            String response = nenApi.generateNenResponse(
+                    newSessionId,
+                    userPromptRequest.getAction(),
+                    userPromptRequest.getPrompt()
+            );
+
+            List<ChatItem> newHistories = List.of(
+                    ChatItem.builder()
+                            .userText(userPromptRequest.getPrompt())
+                            .botText(response)
+                            .botSumerization("Not process")
+                            .createdDate(ZonedDateTime.now(zoneId).toInstant().toString())
+                            .build());
+
+            ChatHistory chatHistory = ChatHistory.builder()
+                    .id(UUID.randomUUID())
+                    .sessionId(newSessionId)
+                    .modelAlias(userPromptRequest.getModelAlias())
+                    .userId(UUID.fromString(
+                            hashingUtil.decode(userPromptRequest.getUserId())))
+                    .chatTitle("")
+                    .histories(newHistories)
+                    .build();
+            savedChatHistory = chatHistory;
+            this.chatbotRepository.save(chatHistory);
+
+        }
+        else {
+            ChatHistory chatHistory = this.chatbotRepository.findById(userPromptRequest.getChatId());
+            if (chatHistory == null)
+                throw new CustomExceptions.ResourceNotFoundException(
+                        "Chat history not found with id: " + userPromptRequest.getChatId());
+            else {
+                // Update chat history
+                List<ChatItem> chatItems = chatHistory.getHistories();
+                // Call Gemini API to get the response with contexts history
+                String response = nenApi.generateNenResponse(userPromptRequest.getSessionId(),
+                        userPromptRequest.getAction(), userPromptRequest.getPrompt());
+
+                chatItems.add(
+                        ChatItem.builder()
+                                .userText(userPromptRequest.getPrompt())
+                                .botText(response)
+                                .botSumerization("Not process")
+                                .createdDate(ZonedDateTime.now(zoneId).toInstant().toString())
+                                .build());
+                chatHistory.setHistories(chatItems);
+                savedChatHistory = chatHistory;
+                this.chatbotRepository.update(chatHistory);
+            }
+        }
+
+        return this.chatHistoryMapper.toResponse(savedChatHistory);
+    }
+
+    private ChatHistoryResponse generateFromGemini(UserPromptRequest userPromptRequest) {
         ChatHistory savedChatHistory = null;
         var zoneId = ZoneId.of("Asia/Ho_Chi_Minh");
         // 1. Begin a new chat, id = null
         if (userPromptRequest.getChatId() == null || userPromptRequest.getChatId().toString().isEmpty()) {
             GeminiTrafficResponse geminiResponse = geminiApi.generateTrafficLawResponse(
-                    userPromptRequest.getPrompt(), null
+                    userPromptRequest.getPrompt(), null, userPromptRequest.getModelAlias()
             );
             List<ChatItem> newHistories = List.of(
                     ChatItem.builder()
@@ -137,6 +177,7 @@ public class ChatbotService implements IChatbotService {
                     .userId(UUID.fromString(
                             hashingUtil.decode(userPromptRequest.getUserId()))
                     )
+                    .modelAlias(userPromptRequest.getModelAlias())
                     .chatTitle("")
                     .histories(newHistories)
                     .build();
@@ -157,7 +198,8 @@ public class ChatbotService implements IChatbotService {
                 GeminiTrafficResponse geminiResponse = geminiApi.generateTrafficLawResponse(
                         userPromptRequest.getPrompt(),
                         chatHistory.getHistories().stream()
-                                .map(ChatItem::getBotSumerization).collect(Collectors.toList())
+                                .map(ChatItem::getBotSumerization).collect(Collectors.toList()),
+                        userPromptRequest.getModelAlias()
                 );
                 chatItems.add(
                         ChatItem.builder()
@@ -176,6 +218,8 @@ public class ChatbotService implements IChatbotService {
         return this.chatHistoryMapper.toResponse(savedChatHistory);
     }
 
+
+
     @Override
     public List<ChatHistoryResponse> getAllChatHistoriesByUserId(String userId) {
         String decodedUserId = this.hashingUtil.decode(userId);
@@ -183,63 +227,16 @@ public class ChatbotService implements IChatbotService {
                 .stream().map(chatHistoryMapper::toResponse).collect(Collectors.toList());
     }
 
-    public ResponseAi generateContentFromPDF(String prompt) {
-        var userMessage = UserMessage.builder()
-                .text(prompt)
-                .build();
-        var aiResponse = this.chatModel.call(new Prompt(List.of(userMessage)));
-        return new ResponseAi(prompt, aiResponse.getResult().getOutput().getText());
-    }
+    private String generateRandomString(int length) {
+        String characters = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
+        Random random = new Random();
+        StringBuilder sb = new StringBuilder(length);
 
-    @Override
-    public ResponseAi generateContentFromPDF(String pdfUrl, String prompt) {
-
-        //var pdfData = new ClassPathResource(pdfUrl);
-
-        var userMessage = UserMessage.builder()
-                .text(prompt)
-                //.media(List.of(new Media(new MimeType("application", "pdf"), pdfData)))
-                .build();
-
-        var aiResponse = this.chatModel.call(new Prompt(List.of(userMessage)));
-
-        return new ResponseAi(prompt, aiResponse.getResult().getOutput().getText());
-    }
-
-    @Override
-    public ResponseAi generateContentFromPDF(MultipartFile pdfUrl, String prompt) throws Exception {
-
-        var pdfData = new InputStreamResource(pdfUrl.getInputStream());
-
-        var userMessage = UserMessage.builder()
-                .text(prompt)
-                .media(List.of(new Media(new MimeType("application", "pdf"), pdfData)))
-                .build();
-
-        var aiResponse = this.chatModel.call(new Prompt(List.of(userMessage)));
-
-//                return new ResponseAi(prompt, aiResponse.getResult().getOutput().getText());
-        return new ResponseAi(prompt, aiResponse.toString());
-    }
-
-    @Override
-    public ResponseAi generateContentFromText(String prompt) {
-        var userMessage = UserMessage.builder()
-                .text(prompt)
-                .build();
-
-        var aiResponse = this.chatModel.call(new Prompt(List.of(userMessage)));
-
-        return new ResponseAi(prompt, aiResponse.getResult().getOutput().getText());
-    }
-
-    @Override
-    public ResponseAi generateContentFromRequest(ChatRequest chatRequest) throws Exception {
-        if (chatRequest.getPdfFile() != null) {
-            return generateContentFromPDF(chatRequest.getPdfFile(), chatRequest.getPrompt());
-        } else if (chatRequest.getPrompt() != null) {
-            return generateContentFromText(chatRequest.getPrompt());
+        for (int i = 0; i < length; i++) {
+            int index = random.nextInt(characters.length());
+            sb.append(characters.charAt(index));
         }
-        return new ResponseAi("Invalid input", "No valid content provided.");
+
+        return sb.toString();
     }
 }

@@ -1,20 +1,19 @@
 package sba.project.tuvanluatgiaothong.repository;
 
 import lombok.RequiredArgsConstructor;
-import sba.project.tuvanluatgiaothong.pojo.LawType;
-
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import sba.project.tuvanluatgiaothong.pojo.AIModel;
 
 @Service
 @Transactional
 @RequiredArgsConstructor
-public class TransactionLawType implements ITransactionLawType {
+public class AIModelTransactionTransaction implements IAIModelTransaction {
 
-    private final LawTypeRepository lawTypeRepository;
+    private final AIModelRepository aiModelRepository;
 
     @Override
-    public LawType save(LawType lawType) {
-        return this.lawTypeRepository.save(lawType);
+    public AIModel save(AIModel aiModel) {
+        return aiModelRepository.save(aiModel);
     }
 }

@@ -2,15 +2,18 @@ package sba.project.tuvanluatgiaothong.dto.response;
 
 import lombok.Data;
 
-import java.time.LocalDateTime;
+import java.time.Instant;
 import java.util.UUID;
 
 @Data
 public class CommentResponse {
-    private UUID id = UUID.randomUUID();
-    private String email;
+    private UUID id;
+    private String username;
+    private String fullname;
+    private String avatarUrl;
+    private boolean isAnonymous;
     private String content;
     private int rating;
-    private LocalDateTime createdDate;
-    private LocalDateTime updatedDate;
+    private Instant createdDate;
+    private Instant updatedDate;
 }

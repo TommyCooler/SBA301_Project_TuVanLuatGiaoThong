@@ -9,14 +9,15 @@ import java.util.UUID;
 
 @Data
 public class CommentCreateRequest {
-    private UUID id;
-    private String email;
+    String username;
+    String fullname;
+    String avatarUrl;
+    Boolean isAnonymous;
 
     @NotBlank
-    private String content;
+    String content;
 
     @Min(1)
     @Max(5)
-    private int rating;
-
+    int rating;
 }

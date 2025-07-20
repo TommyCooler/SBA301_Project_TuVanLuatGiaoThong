@@ -19,13 +19,13 @@ import org.springframework.data.redis.serializer.StringRedisSerializer;
 @PropertySource("classpath:redis.properties")
 public class RedisConfiguration {
 
-    @Value("${redis.host:redis}")
+    @Value("${redis.host}")
     private String redisHost;
 
-    @Value("${redis.port:6379}")
+    @Value("${redis.port}")
     private int redisPort;
 
-    @Value("${redis.password:}")
+    @Value("${redis.password}")
     private String redisPassword;
 
     @Bean

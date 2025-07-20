@@ -1,11 +1,10 @@
 package sba.project.tuvanluatgiaothong.repository;
 
+import sba.project.tuvanluatgiaothong.pojo.Comment;
 
 import java.util.UUID;
 
-import sba.project.tuvanluatgiaothong.pojo.Comment;
-
-public interface ITransactionComment {
+public interface ICommentTransaction {
     Comment save(Comment comment);
 
     void update(Comment comment);

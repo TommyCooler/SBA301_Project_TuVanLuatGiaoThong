@@ -41,10 +41,6 @@ public class UsagePackage {
     @Column(name = "days_limit")
     private int daysLimit;
 
-    @Enumerated(EnumType.STRING)
-    @Column(name = "model_type")
-    private ModelAI modelType;
-
     @Column(name = "is_deleted")
     private boolean isDeleted;
 
@@ -54,7 +50,7 @@ public class UsagePackage {
     @Column(name = "updated_date")
     private Instant updatedDate;
 
-    @ManyToMany
+    @ManyToMany(cascade = {CascadeType.DETACH, CascadeType.MERGE, CascadeType.PERSIST, CascadeType.REFRESH})
     @JoinTable(
             name = "packages_models",
             joinColumns = @JoinColumn(name = "package_id", referencedColumnName = "id"),

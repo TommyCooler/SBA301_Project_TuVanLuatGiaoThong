@@ -8,7 +8,7 @@ import sba.project.tuvanluatgiaothong.exception.CustomExceptions;
 import sba.project.tuvanluatgiaothong.mapper.LawMapper;
 import sba.project.tuvanluatgiaothong.pojo.Law;
 import sba.project.tuvanluatgiaothong.pojo.LawType;
-import sba.project.tuvanluatgiaothong.repository.ITransactionLaw;
+import sba.project.tuvanluatgiaothong.repository.ILawTransaction;
 import sba.project.tuvanluatgiaothong.repository.LawRepository;
 import sba.project.tuvanluatgiaothong.repository.LawTypeRepository;
 
@@ -20,7 +20,7 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class LawService implements ILawService {
 
-    private final ITransactionLaw transactionLaw;
+    private final ILawTransaction transactionLaw;
     private final LawRepository lawRepository;
     private final LawTypeRepository lawTypeRepository;
     private final LawMapper lawMapper;
@@ -109,7 +109,7 @@ public class LawService implements ILawService {
     @Override
     public void delete(UUID id) {
         Law law = this.lawRepository.findById(id)
-            .orElseThrow(() -> new IllegalArgumentException("Law not found with id: " + id));
+                .orElseThrow(() -> new IllegalArgumentException("Law not found with id: " + id));
         law.setDeleted(true);
         this.transactionLaw.update(law);
     }
@@ -118,9 +118,9 @@ public class LawService implements ILawService {
     public LawResponse update(UUID id, LawRequest lawRequest) {
         // TODO Auto-generated method stub
         Law law = lawRepository.findById(id)
-            .orElseThrow(() -> new IllegalArgumentException("Law not found with id: " + id));
+                .orElseThrow(() -> new IllegalArgumentException("Law not found with id: " + id));
         LawType lawType = lawTypeRepository.findById(UUID.fromString(lawRequest.getLawTypeId()))
-            .orElseThrow(() -> new IllegalArgumentException("LawType not found with id: " + lawRequest.getLawTypeId()));
+                .orElseThrow(() -> new IllegalArgumentException("LawType not found with id: " + lawRequest.getLawTypeId()));
 
         law.setTitle(lawRequest.getTitle());
         law.setLawType(lawType);
@@ -146,23 +146,23 @@ public class LawService implements ILawService {
     }
 
 
-    
+
 
     private Law convertToLawEntity(LawRequest lawRequest) {
         // Convert LawRequestDto to Law entity
         LawType lawType = lawTypeRepository.findById(UUID.fromString(lawRequest.getLawTypeId()))
-            .orElseThrow(() -> new IllegalArgumentException("LawType not found with id: " + lawRequest.getLawTypeId()));
-        
+                .orElseThrow(() -> new IllegalArgumentException("LawType not found with id: " + lawRequest.getLawTypeId()));
+
         return Law.builder()
-            .title(lawRequest.getTitle())
-            .lawType(lawType)
-            .referenceNumber(lawRequest.getReferenceNumber())
-            .dateline(lawRequest.getDateline())
-            .issueDate(lawRequest.getIssueDate())
-            .effectiveDate(lawRequest.getEffectiveDate())
-            .sourceUrl(lawRequest.getSourceUrl())
-            .filePath(lawRequest.getFilePath())
-            .build();
+                .title(lawRequest.getTitle())
+                .lawType(lawType)
+                .referenceNumber(lawRequest.getReferenceNumber())
+                .dateline(lawRequest.getDateline())
+                .issueDate(lawRequest.getIssueDate())
+                .effectiveDate(lawRequest.getEffectiveDate())
+                .sourceUrl(lawRequest.getSourceUrl())
+                .filePath(lawRequest.getFilePath())
+                .build();
     }
 
 
@@ -189,7 +189,7 @@ public class LawService implements ILawService {
         lawResponseDto.setCreatedDate(law.getCreatedDate());
         lawResponseDto.setUpdatedDate(law.getUpdatedDate());
         lawResponseDto.setLawType(lawTypeResponse);
-        
+
         return lawResponseDto;
     }
 }

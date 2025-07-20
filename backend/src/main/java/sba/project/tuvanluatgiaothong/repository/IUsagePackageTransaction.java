@@ -4,7 +4,7 @@ import sba.project.tuvanluatgiaothong.pojo.UsagePackage;
 
 import java.util.UUID;
 
-public interface ITransactionUsagePackage {
+public interface IUsagePackageTransaction {
 
     public UsagePackage save(UsagePackage usagePackage);
 

@@ -1,0 +1,26 @@
+# docker-compose -f docker-compose-production.yml -p swd392-api-production up -d
+services:
+  redis:
+    image: redis:7-alpine
+    container_name: redis
+    ports:
+      - "6379:6379"
+    environment:
+      - REDIS_PASSWORD=swd392
+    command: redis-server --requirepass swd392
+    volumes:
+      - redis-data:/data
+    networks:
+      - swd-app-network
+    healthcheck:
+      test: ["CMD", "redis-cli", "--raw", "incr", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+
+networks:
+  swd-app-network:
+    driver: bridge
+
+volumes:
+  redis-data:

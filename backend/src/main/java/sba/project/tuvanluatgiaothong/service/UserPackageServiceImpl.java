@@ -141,7 +141,7 @@ import sba.project.tuvanluatgiaothong.dto.request.UserPackageRequest;
 import sba.project.tuvanluatgiaothong.dto.response.UserPackageResponse;
 import sba.project.tuvanluatgiaothong.exception.CustomExceptions;
 import sba.project.tuvanluatgiaothong.pojo.UserPackage;
-import sba.project.tuvanluatgiaothong.repository.ITransactionUserPackage;
+import sba.project.tuvanluatgiaothong.repository.IUserPackageTransaction;
 import sba.project.tuvanluatgiaothong.repository.UserPackageRepository;
 
 @Service
@@ -150,7 +150,7 @@ public class UserPackageServiceImpl implements IUserPackageService {
 
     private UserPackageRepository userPackageRepository;
 
-    private ITransactionUserPackage transactionUserPackage;
+    private IUserPackageTransaction transactionUserPackage;
 
     @Override
     public UserPackageResponse createUserPackage(UserPackageRequest requestDto) {

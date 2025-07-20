@@ -7,12 +7,19 @@ import sba.project.tuvanluatgiaothong.dto.request.CommentUpdateRequest;
 import sba.project.tuvanluatgiaothong.dto.response.CommentResponse;
 import sba.project.tuvanluatgiaothong.pojo.Comment;
 
+import java.util.UUID;
+
 @Component("commentMapper_LawService")
 public class CommentMapper {
-    public Comment toCreateEntity(CommentCreateRequest commentCreateRequest) {
+
+    public Comment toEntity(CommentCreateRequest commentCreateRequest) {
         if (commentCreateRequest == null) return null;
         Comment comment = new Comment();
-        comment.setEmail(commentCreateRequest.getEmail());
+        comment.setId(UUID.randomUUID());
+        comment.setUsername(commentCreateRequest.getUsername());
+        comment.setFullname(commentCreateRequest.getFullname());
+        comment.setAvatarUrl(commentCreateRequest.getAvatarUrl());
+        comment.setAnonymous(commentCreateRequest.getIsAnonymous());
         comment.setContent(commentCreateRequest.getContent());
         comment.setRating(commentCreateRequest.getRating());
         return comment;
@@ -32,8 +39,9 @@ public class CommentMapper {
         if (comment == null) return null;
         CommentResponse response = new CommentResponse();
         response.setId(comment.getId());
-        response.setEmail(comment.getEmail());
+        response.setUsername(comment.getUsername());
         response.setContent(comment.getContent());
+        response.setAvatarUrl(comment.getAvatarUrl());
         response.setRating(comment.getRating());
         response.setCreatedDate(comment.getCreatedDate());
         response.setUpdatedDate(comment.getUpdatedDate());

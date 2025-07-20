@@ -6,7 +6,7 @@ import sba.project.tuvanluatgiaothong.dto.response.ApiResponse;
 import sba.project.tuvanluatgiaothong.dto.response.LawTypeResponse;
 import sba.project.tuvanluatgiaothong.exception.CustomExceptions;
 import sba.project.tuvanluatgiaothong.mapper.LawTypeMapper;
-import sba.project.tuvanluatgiaothong.repository.ITransactionLawType;
+import sba.project.tuvanluatgiaothong.repository.ILawTypeTransaction;
 import sba.project.tuvanluatgiaothong.repository.LawTypeRepository;
 
 import org.springframework.stereotype.Service;
@@ -20,7 +20,7 @@ public class LawTypeService implements ILawTypeService {
 
     private final LawTypeRepository lawTypeRepository;
 
-    private final ITransactionLawType transactionLawType;
+    private final ILawTypeTransaction transactionLawType;
 
     private final LawTypeMapper lawTypeMapper;
 
@@ -45,8 +45,8 @@ public class LawTypeService implements ILawTypeService {
     public ApiResponse<List<LawTypeResponse>> getAllLawTypes() {
         try {
             var lawTypes = this.lawTypeRepository.findAll().stream().map(
-                                this.lawTypeMapper::toResponse
-                            ).toList();
+                    this.lawTypeMapper::toResponse
+            ).toList();
             return ApiResponse.<List<LawTypeResponse>>builder()
                     .status("success")
                     .message("Get all law type successfully!")

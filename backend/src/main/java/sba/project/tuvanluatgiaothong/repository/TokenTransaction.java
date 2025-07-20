@@ -10,7 +10,7 @@ import java.util.List;
 
 @Service
 @Transactional
-public class TokenTransaction {
+public class TokenTransaction implements ITokenTransaction {
 
     private final TokenRepository tokenRepository;
 
@@ -18,6 +18,7 @@ public class TokenTransaction {
         this.tokenRepository = tokenRepository;
     }
 
+    @Override
     public void saveToken(User user, String jwtToken) {
         Token token = new Token();
         token.setToken(jwtToken);
@@ -28,6 +29,7 @@ public class TokenTransaction {
         tokenRepository.save(token);
     }
 
+    @Override
     @Transactional
     public void revokeAllOldUserToken(User user) {
         List<Token> tokens = tokenRepository.findAllValidTokenByUsername(user.getId());

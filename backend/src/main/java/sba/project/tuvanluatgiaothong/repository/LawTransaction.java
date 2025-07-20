@@ -10,7 +10,7 @@ import sba.project.tuvanluatgiaothong.pojo.Law;
 
 @Service
 @Transactional
-public class LawTransaction implements ITransactionLaw {
+public class LawTransaction implements ILawTransaction {
 
     @Autowired
     private LawRepository lawRepository;
@@ -18,7 +18,7 @@ public class LawTransaction implements ITransactionLaw {
     @Override
     public void commitTransaction() {
         // Logic to commit the transaction
-        
+
         System.out.println("Transaction committed.");
     }
 
@@ -30,17 +30,20 @@ public class LawTransaction implements ITransactionLaw {
 
     @Override
     public Law save(Law law) {
+        // TODO Auto-generated method stub
         return lawRepository.save(law);
     }
 
     @Override
     public Law update(Law law) {
+        // TODO Auto-generated method stub
         lawRepository.save(law);
         throw new UnsupportedOperationException("Unimplemented method 'update'");
     }
 
     @Override
     public boolean delete(UUID lawId) {
+        // TODO Auto-generated method stub
         lawRepository.deleteById(lawId);
         throw new UnsupportedOperationException("Unimplemented method 'delete'");
     }

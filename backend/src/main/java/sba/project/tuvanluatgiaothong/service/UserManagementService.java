@@ -29,14 +29,15 @@ public class UserManagementService implements IUserManagementService {
 
     @Override
     public ApiResponse<Object> getAllUsers() {
-        List<Object> mappedUsers = userRepository.findAll().stream()
+        List<?> users = userRepository.findAll()
+                .stream()
                 .map(userMapper::toResponse)
                 .collect(Collectors.toList());
 
         return new ApiResponse<>(
                 "success",
                 "Lấy danh sách người dùng thành công",
-                mappedUsers
+                users
         );
     }
 
