@@ -26,10 +26,10 @@ public class UsagePackage {
     @Column(name = "id", nullable = false, updatable = false)
     private UUID id;
 
-    @Column(name = "name", length = 60, nullable = false)
+    @Column(name = "name", length = 60, nullable = false, columnDefinition = "NVARCHAR(60)")
     private String name;
 
-    @Column(name = "description", columnDefinition = "TEXT")
+    @Column(name = "description", columnDefinition = "NVARCHAR(MAX)")
     private String description;
 
     @Column(name = "price")
