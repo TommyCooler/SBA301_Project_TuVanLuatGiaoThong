@@ -36,7 +36,7 @@ function Pricing() {
   useEffect(() => {
     if (usagePackages.length > 0) {
       const formattedPlans: PlanData[] = usagePackages
-        .filter((pkg: UsagePackage) => !pkg.isDeleted)
+        .filter((pkg: UsagePackage) => !pkg.deleted) 
         .map((pkg: UsagePackage, index: number) => {
           // Split description by "." and filter out empty strings
           const descriptions = pkg.description 
