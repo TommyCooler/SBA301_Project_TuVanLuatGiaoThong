@@ -24,7 +24,7 @@ export const Api = {
         GET_BY_ID: '/api/v1/law/get/',
         CREATE: '/api/v1/law/admin/create',   
         UPDATE: '/api/v1/law/admin/update/',
-        DEACTIVATE: '/api/v1/law/admin/deactivte/'
+        DEACTIVATE: '/api/v1/law/admin/deactivate/'
     },
 
     LawType: {

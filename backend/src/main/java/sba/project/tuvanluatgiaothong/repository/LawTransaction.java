@@ -37,8 +37,8 @@ public class LawTransaction implements ILawTransaction {
     @Override
     public Law update(Law law) {
         // TODO Auto-generated method stub
-        lawRepository.save(law);
-        throw new UnsupportedOperationException("Unimplemented method 'update'");
+        return lawRepository.save(law);
+//        throw new UnsupportedOperationException("Unimplemented method 'update'");
     }
 
     @Override

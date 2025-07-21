@@ -33,10 +33,10 @@ public class Law {
     @Column(name = "reference_number", length = 255)
     private String referenceNumber;
 
-    @Column(name = "dateline", length = 255)
+    @Column(name = "dateline", columnDefinition = "NVARCHAR(MAX)")
     private String dateline;
 
-    @Column(name = "title", columnDefinition = "NVARCHAR(30)")
+    @Column(name = "title", columnDefinition = "NVARCHAR(MAX)")
     private String title;
 
     @ManyToOne
@@ -49,10 +49,10 @@ public class Law {
     @Column(name = "effective_date")
     private Instant effectiveDate;
 
-    @Column(name = "source_url", columnDefinition = "TEXT")
+    @Column(name = "source_url", columnDefinition = "NVARCHAR(MAX)")
     private String sourceUrl;
 
-    @Column(name = "file_path", columnDefinition = "TEXT")
+    @Column(name = "file_path", columnDefinition = "NVARCHAR(MAX)")
     private String filePath;
 
     @Column(name = "is_deleted")

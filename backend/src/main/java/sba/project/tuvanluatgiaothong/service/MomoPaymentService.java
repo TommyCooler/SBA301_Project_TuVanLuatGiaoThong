@@ -203,11 +203,13 @@ import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import sba.project.tuvanluatgiaothong.dto.request.TransactionHistoryRequest;
 import sba.project.tuvanluatgiaothong.dto.response.TransactionCompletionResponse;
+import sba.project.tuvanluatgiaothong.dto.response.UsagePackageResponse;
 import sba.project.tuvanluatgiaothong.enums.PayType;
 import sba.project.tuvanluatgiaothong.enums.Status;
 import sba.project.tuvanluatgiaothong.exception.CustomExceptions;
 import sba.project.tuvanluatgiaothong.mapper.TransactionHistoryMapper;
 import sba.project.tuvanluatgiaothong.pojo.TransactionHistory;
+import sba.project.tuvanluatgiaothong.pojo.UsagePackage;
 import sba.project.tuvanluatgiaothong.pojo.UserPackage;
 import sba.project.tuvanluatgiaothong.repository.*;
 import sba.project.tuvanluatgiaothong.utils.HashingUtil;
@@ -230,12 +232,18 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class MomoPaymentService implements IMomoPaymentService {
 
-    @Value("${momo.partner-code}") private String partnerCode;
-    @Value("${momo.access-key}") private String accessKey;
-    @Value("${momo.secret-key}") private String secretKey;
-    @Value("${momo.endpoint}") private String endpoint;
-    @Value("${momo.redirect-url}") private String redirectUrl;
-    @Value("${momo.ipn-url}") private String ipnUrl;
+    @Value("${momo.partner-code}")
+    private String partnerCode;
+    @Value("${momo.access-key}")
+    private String accessKey;
+    @Value("${momo.secret-key}")
+    private String secretKey;
+    @Value("${momo.endpoint}")
+    private String endpoint;
+    @Value("${momo.redirect-url}")
+    private String redirectUrl;
+    @Value("${momo.ipn-url}")
+    private String ipnUrl;
 
     private final HistoryTransactionTransaction historyTransactionTransaction;
 
@@ -314,15 +322,15 @@ public class MomoPaymentService implements IMomoPaymentService {
 
     //tao chu ky bao mat
     private String hmacSHA256(String data, String key) {
-       try {
-           Mac hmac = Mac.getInstance("HmacSHA256");
-           SecretKeySpec secretKeySpec = new SecretKeySpec(key.getBytes(),"HmacSHA256");
-           hmac.init(secretKeySpec);
-           byte[] hash = hmac.doFinal(data.getBytes());
-           return bytesToHex(hash);
-       } catch (Exception e) {
-           throw new RuntimeException("Error generating HMAC SHA256", e);
-       }
+        try {
+            Mac hmac = Mac.getInstance("HmacSHA256");
+            SecretKeySpec secretKeySpec = new SecretKeySpec(key.getBytes(), "HmacSHA256");
+            hmac.init(secretKeySpec);
+            byte[] hash = hmac.doFinal(data.getBytes());
+            return bytesToHex(hash);
+        } catch (Exception e) {
+            throw new RuntimeException("Error generating HMAC SHA256", e);
+        }
     }
 
     @Override
@@ -332,6 +340,11 @@ public class MomoPaymentService implements IMomoPaymentService {
             if (payload.get("orderId") == null || payload.get("amount") == null) {
                 throw new IllegalArgumentException("Missing required fields");
             }
+
+            if (!"0".equals(payload.get("resultCode"))){
+                throw new IllegalArgumentException("Payment cancellation");
+            }
+
             String orderId = payload.get("orderId");
             TransactionHistoryRequest dto = new TransactionHistoryRequest();
             dto.setOrderId(orderId);
