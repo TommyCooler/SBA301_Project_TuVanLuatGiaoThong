@@ -208,6 +208,9 @@ public class SecurityConfig {
                 
                 auth.requestMatchers(request -> roleRouterValidator.isAdminEndpoint(request.getServletPath()))
                     .hasRole("ADMIN");
+
+                auth.requestMatchers("/api/v1/{*prefix}/admin/**")
+                        .hasRole("ADMIN");
                 
                 // User endpoints từ RouterValidator - cần ROLE_USER hoặc ROLE_ADMIN
                 auth.requestMatchers(RouterValidator.USER_ENDPOINTS).hasAnyRole("USER", "ADMIN");
