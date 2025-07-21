@@ -484,8 +484,8 @@ export default function LawManagementSection() {
                   <p className="text-gray-900 dark:text-white bg-gray-50 dark:bg-gray-700 px-3 py-2 rounded-md">
                     {viewingLaw.createdDate
                       ? new Date(viewingLaw.createdDate).toLocaleDateString(
-                          "vi-VN"
-                        )
+                        "vi-VN"
+                      )
                       : "Chưa có"}
                   </p>
                 </div>
@@ -560,8 +560,8 @@ export default function LawManagementSection() {
 
       {/* Modal */}
       {isModalOpen && (
-        <div className="fixed inset-0 backdrop-blur-sm bg-white/30 dark:bg-black/30 flex items-center justify-center">
-          <div className="bg-white dark:bg-gray-800 rounded-lg p-6 w-full max-w-md shadow-xl">
+        <div className="fixed inset-0 backdrop-blur-sm bg-white/30 flex items-center justify-center overflow-y-auto z-50">
+          <div className="bg-white dark:bg-gray-800 rounded-lg p-6 w-full max-w-md shadow-xl my-8 max-h-[90vh] overflow-y-auto">
             <h3 className="text-lg font-semibold mb-4 text-gray-900 dark:text-white">
               {editingLaw ? "Chỉnh sửa luật" : "Thêm luật mới"}
             </h3>
@@ -584,8 +584,8 @@ export default function LawManagementSection() {
                     {uploadedFile
                       ? "File đã tải lên thành công"
                       : selectedFile
-                      ? "Đang tải lên..."
-                      : "Click để tải file lên"}
+                        ? "Đang tải lên..."
+                        : "Click để tải file lên"}
                   </span>
                   {uploadedFile && (
                     <span className="text-xs text-gray-500 mt-1">
@@ -717,8 +717,8 @@ export default function LawManagementSection() {
                   {isSubmitting
                     ? "Đang xử lý..."
                     : editingLaw
-                    ? "Cập nhật"
-                    : "Thêm mới"}
+                      ? "Cập nhật"
+                      : "Thêm mới"}
                 </button>
               </div>
             </form>

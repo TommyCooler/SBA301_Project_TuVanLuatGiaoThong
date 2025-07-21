@@ -31,7 +31,7 @@ export default function UsagePackageSection() {
     price: 0,
     dailyLimit: 0,
     daysLimit: 0,
-    isDeleted: false,
+    deleted: false,
   });
 
   // Column resizing state
@@ -52,6 +52,7 @@ export default function UsagePackageSection() {
     getAllUsagePackages();
     getAllAIModels();
   }, [getAllUsagePackages, getAllAIModels]);
+
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value, type } = e.target;
@@ -79,6 +80,7 @@ export default function UsagePackageSection() {
       }
       else {
         await createUsagePackage(formData);
+        await getAllUsagePackages();
       }
       setIsModalOpen(false);
       setEditingPackage(null);
@@ -88,7 +90,7 @@ export default function UsagePackageSection() {
         price: 0,
         dailyLimit: 0,
         daysLimit: 0,
-        isDeleted: false,
+        deleted: false,
         aiModels: []
       });
     }
@@ -116,6 +118,7 @@ export default function UsagePackageSection() {
     if (id) {
       try {
         await deleteUsagePackage(id);
+        await getAllUsagePackages();
       } catch (error) {
         console.error("Error deleting package:", error);
       }
@@ -163,7 +166,7 @@ export default function UsagePackageSection() {
               price: 0,
               dailyLimit: 0,
               daysLimit: 0,
-              isDeleted: false,
+              deleted: false,
               aiModels: [], // <-- important!
             });
             setIsModalOpen(true);
@@ -299,11 +302,11 @@ export default function UsagePackageSection() {
                         </div>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap overflow-hidden text-ellipsis" style={{ width: columnWidths.status }}>
-                        <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${pkg.isDeleted
+                        <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${pkg.deleted
                           ? 'bg-red-100 dark:bg-red-900 text-red-800 dark:text-red-200'
                           : 'bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200'
                           }`}>
-                          {pkg.isDeleted ? 'Đã xóa' : 'Đang hoạt động'}
+                          {pkg.deleted ? 'Đã xóa' : 'Đang hoạt động'}
                         </span>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm font-medium overflow-hidden text-ellipsis" style={{ width: columnWidths.actions }}>
@@ -340,8 +343,8 @@ export default function UsagePackageSection() {
 
       {/* Modal */}
       {isModalOpen && (
-        <div className="fixed inset-0 backdrop-blur-sm bg-white/30 dark:bg-black/30 flex items-center justify-center">
-          <div className="bg-white dark:bg-gray-800 rounded-lg p-6 w-full max-w-md shadow-xl">
+        <div className="fixed inset-0 backdrop-blur-sm bg-white/30 flex items-center justify-center overflow-y-auto z-50">
+          <div className="bg-white dark:bg-gray-800 rounded-lg p-6 w-full max-w-md shadow-xl my-8 max-h-[90vh] overflow-y-auto">
             <h3 className="text-lg font-semibold mb-4 text-gray-900 dark:text-gray-100">
               {editingPackage ? "Chỉnh sửa gói sử dụng" : "Thêm gói sử dụng mới"}
             </h3>
@@ -415,8 +418,8 @@ export default function UsagePackageSection() {
               <div className="flex items-center">
                 <Input
                   type="checkbox"
-                  name="isDeleted"
-                  checked={formData.isDeleted}
+                  name="deleted"
+                  checked={formData.deleted}
                   onChange={handleInputChange}
                   className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
                 />
@@ -495,8 +498,8 @@ export default function UsagePackageSection() {
               <div>
                 <label className="block text-sm font-medium text-gray-700">Trạng thái</label>
                 <p className="mt-1">
-                  <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${viewingPackage.isDeleted ? 'bg-red-100 text-red-800' : 'bg-green-100 text-green-800'}`}>
-                    {viewingPackage.isDeleted ? 'Đã xóa' : 'Đang hoạt động'}
+                  <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${viewingPackage.deleted ? 'bg-red-100 text-red-800' : 'bg-green-100 text-green-800'}`}>
+                    {viewingPackage.deleted ? 'Đã xóa' : 'Đang hoạt động'}
                   </span>
                 </p>
               </div>

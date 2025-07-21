@@ -8,7 +8,7 @@ export type UsagePackage = {
   dailyLimit?: number;
   daysLimit?: number;
   aiModels?: AIModel[];
-  isDeleted?: boolean;
+  deleted?: boolean;
   createdDate?: string;
   updatedDate?: string;
 };
