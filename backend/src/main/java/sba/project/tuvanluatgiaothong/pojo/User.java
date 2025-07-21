@@ -24,7 +24,8 @@ import java.util.*;
 public class User implements UserDetails {
 
     @Id
-    private UUID id = UUID.randomUUID();
+    @GeneratedValue(strategy = GenerationType.AUTO)
+    private UUID id;
 
     @Column(name = "username", length = 60, unique = true)
     private String usernameAuth;
@@ -61,6 +62,9 @@ public class User implements UserDetails {
     public void prePersist() {
         ZoneId zoneId = ZoneId.of("Asia/Ho_Chi_Minh");
         this.createdDate = ZonedDateTime.now(zoneId).toInstant();
+        if (this.id == null) {
+            this.id = UUID.randomUUID();
+        }
     }
 
     // UserDetails methods
