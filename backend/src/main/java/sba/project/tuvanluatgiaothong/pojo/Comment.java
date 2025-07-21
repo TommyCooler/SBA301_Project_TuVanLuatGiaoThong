@@ -23,13 +23,13 @@ public class Comment {
     @Column(name="username")
     private String username;
 
-    @Column(name = "fullname")
+    @Column(name = "fullname", columnDefinition = "NVARCHAR(20)")
     private String fullname;
 
     @Column(name = "avatar_url")
     private String avatarUrl;
 
-    @Column(name = "content",columnDefinition = "TEXT", nullable = false)
+    @Column(name = "content",columnDefinition = "NVARCHAR(MAX)", nullable = false)
     private String content;
 
     @Column(name = "is_anonymous")

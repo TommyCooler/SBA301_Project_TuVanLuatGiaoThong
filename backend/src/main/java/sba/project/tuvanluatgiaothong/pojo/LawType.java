@@ -27,7 +27,7 @@ public class LawType {
     @Builder.Default
     private UUID id = UUID.randomUUID();
 
-    @Column(name = "name", length = 255)
+    @Column(name = "name", columnDefinition = "NVARCHAR(30)")
     private String name;
 
     @Column(name = "is_deleted")

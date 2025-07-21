@@ -36,7 +36,7 @@ public class Law {
     @Column(name = "dateline", length = 255)
     private String dateline;
 
-    @Column(name = "title", length = 255)
+    @Column(name = "title", columnDefinition = "NVARCHAR(30)")
     private String title;
 
     @ManyToOne
