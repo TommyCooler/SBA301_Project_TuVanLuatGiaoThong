@@ -340,8 +340,8 @@ export default function UsagePackageSection() {
 
       {/* Modal */}
       {isModalOpen && (
-        <div className="fixed inset-0 backdrop-blur-sm bg-white/30 dark:bg-black/30 flex items-center justify-center">
-          <div className="bg-white dark:bg-gray-800 rounded-lg p-6 w-full max-w-md shadow-xl">
+        <div className="fixed inset-0 backdrop-blur-sm bg-white/30 flex items-center justify-center overflow-y-auto z-50">
+          <div className="bg-white dark:bg-gray-800 rounded-lg p-6 w-full max-w-md shadow-xl my-8 max-h-[90vh] overflow-y-auto">
             <h3 className="text-lg font-semibold mb-4 text-gray-900 dark:text-gray-100">
               {editingPackage ? "Chỉnh sửa gói sử dụng" : "Thêm gói sử dụng mới"}
             </h3>
